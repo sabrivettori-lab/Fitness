@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Sabrina's Fitness</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e; color: #eee; min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .nav { 
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #16213e; border-top: 1px solid #2a3f5f;
+            display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-btn {
+            flex: 1; padding: 12px 4px 8px; text-align: center; color: #666;
+            background: none; border: none; font-size: 10px; cursor: pointer;
+        }
+        .nav-btn.active { color: #0DA57C; }
+        .nav-btn .icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        
+        /* Pages */
+        .page { display: none; padding: 16px; padding-bottom: 100px; }
+        .page.active { display: block; }
+        
+        /* Common */
+        h1 { color: #0DA57C; font-size: 22px; margin-bottom: 16px; text-align: center; }
+        .card { background: #16213e; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+        .card h2 { color: #0DA57C; font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        
+        /* Dashboard */
+        .schedule-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .schedule-table th, .schedule-table td { padding: 10px 6px; text-align: left; border-bottom: 1px solid #2a3f5f; }
+        .schedule-table th { color: #0DA57C; font-size: 11px; text-transform: uppercase; }
+        .schedule-table tr.today { background: #0DA57C22; }
+        .cal-maint { color: #0DA57C; font-weight: bold; }
+        .cal-rfl { color: #ff6b6b; font-weight: bold; }
+        .cal-normal { color: #888; }
+        
+        .workout-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .workout-btn { 
+            background: #1a1a2e; border: 2px solid #0DA57C; border-radius: 10px; 
+            padding: 14px 6px; text-align: center; cursor: pointer;
+        }
+        .workout-btn:active { background: #0DA57C33; }
+        .workout-btn .day { font-size: 22px; font-weight: bold; color: #0DA57C; }
+        .workout-btn .name { font-size: 10px; color: #aaa; margin-top: 2px; }
+        
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .input-row input { 
+            flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #2a3f5f;
+            background: #1a1a2e; color: #eee; font-size: 16px;
+        }
+        .input-row button, .btn {
+            padding: 12px 16px; background: #0DA57C; color: white; border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;
+        }
+        .btn:active { background: #0b8a68; }
+        .btn-full { width: 100%; padding: 14px; font-size: 16px; margin-top: 12px; }
+        
+        .log-list { max-height: 120px; overflow-y: auto; }
+        .log-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a3f5f; font-size: 13px; }
+        .log-item:last-child { border-bottom: none; }
+        
+        /* Workout Page */
+        .workout-header { 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+            padding-bottom: 12px; border-bottom: 1px solid #2a3f5f;
+        }
+        .back-btn { 
+            width: 36px; height: 36px; background: #0DA57C; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px; cursor: pointer; border: none;
+        }
+        .workout-title { flex: 1; }
+        .workout-title h1 { font-size: 18px; margin: 0; text-align: left; }
+        .workout-title .cal-badge { font-size: 12px; margin-top: 2px; }
+        
+        .section-title { 
+            color: #0DA57C; font-size: 14px; font-weight: bold; 
+            padding: 8px 0; border-bottom: 1px solid #0DA57C; margin-bottom: 8px;
+        }
+        
+        .exercise { 
+            display: flex; gap: 8px; background: #1a1a2e; 
+            border-radius: 8px; padding: 10px; margin-bottom: 8px;
+        }
+        .exercise.completed { opacity: 0.5; }
+        .exercise.completed .ex-name { text-decoration: line-through; }
+        
+        .ex-check {
+            width: 26px; height: 26px; min-width: 26px; border: 2px solid #0DA57C;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; margin-top: 2px; background: none;
+        }
+        .ex-check.done { background: #0DA57C; }
+        .ex-check.done::after { content: "✓"; color: white; font-weight: bold; font-size: 14px; }
+        
+        .ex-info { flex: 1; min-width: 0; }
+        .ex-name { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
+        .ex-details { color: #888; font-size: 11px; margin-bottom: 5px; }
+        .ex-inputs { display: flex; gap: 4px; }
+        .ex-inputs input { 
+            width: 55px; padding: 6px; border-radius: 6px; border: 1px solid #2a3f5f;
+            background: #16213e; color: #eee; font-size: 13px;
+        }
+        
+        .ex-video {
+            width: 80px; height: 60px; min-width: 80px; border-radius: 6px;
+            overflow: hidden; position: relative; background: #333;
+        }
+        .ex-video img { width: 100%; height: 100%; object-fit: cover; }
+        .ex-video .play {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 24px; height: 24px; background: rgba(255,0,0,0.9); border-radius: 50%;
+        }
+        .ex-video .play::after {
+            content: ""; position: absolute; top: 50%; left: 50%;
+            transform: translate(-40%, -50%);
+            border: 4px solid transparent; border-left: 7px solid white;
+        }
+        .no-vid {
+            width: 80px; height: 60px; min-width: 80px; background: #2a2a4e;
+            border-radius: 6px; display: flex; align-items: center;
+            justify-content: center; color: #444; font-size: 10px;
+        }
+        
+        .superset { 
+            background: #0DA57C15; border-left: 3px solid #0DA57C;
+            padding: 8px; margin-bottom: 8px; border-radius: 0 8px 8px 0;
+        }
+        .superset-label { color: #0DA57C; font-size: 10px; font-weight: bold; margin-bottom: 6px; }
+        
+        .placeholder { 
+            background: #2a3f5f; border-radius: 8px; padding: 16px;
+            text-align: center; color: #555; font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Dashboard Page -->
+<div class="page active" id="page-dashboard">
+    <h1>💪 Sabrina's Fitness</h1>
+    
+    <div class="card">
+        <h2>📅 This Week</h2>
+        <table class="schedule-table">
+            <tr><th>Day</th><th>Workout</th><th>kcal</th></tr>
+            <tr data-dow="5"><td>Fri</td><td>Day 1: Back & Chest</td><td class="cal-maint">1800</td></tr>
+            <tr data-dow="6"><td>Sat</td><td>Rest</td><td class="cal-normal">1300</td></tr>
+            <tr data-dow="0"><td>Sun</td><td>Day 2: Legs</td><td class="cal-normal">1300</td></tr>
+            <tr data-dow="1"><td>Mon</td><td>Day 3: Shoulders</td><td class="cal-rfl">850</td></tr>
+            <tr data-dow="2"><td>Tue</td><td>Day 4: Posterior</td><td class="cal-normal">1300</td></tr>
+            <tr data-dow="3"><td>Wed</td><td>Day 5: Arms</td><td class="cal-rfl">850</td></tr>
+            <tr data-dow="4"><td>Thu</td><td>Day 6: Sprints</td><td class="cal-normal">1300</td></tr>
+        </table>
+    </div>
+    
+    <div class="card">
+        <h2>🏋️ Workouts</h2>
+        <div class="workout-grid">
+            <div class="workout-btn" onclick="showWorkout(1)"><div class="day">1</div><div class="name">Back & Chest</div></div>
+            <div class="workout-btn" onclick="showWorkout(2)"><div class="day">2</div><div class="name">Legs</div></div>
+            <div class="workout-btn" onclick="showWorkout(3)"><div class="day">3</div><div class="name">Shoulders</div></div>
+            <div class="workout-btn" onclick="showWorkout(4)"><div class="day">4</div><div class="name">Posterior</div></div>
+            <div class="workout-btn" onclick="showWorkout(5)"><div class="day">5</div><div class="name">Arms</div></div>
+            <div class="workout-btn" onclick="showWorkout(6)"><div class="day">6</div><div class="name">Sprints</div></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>⚖️ Weight Log</h2>
+        <div class="input-row">
+            <input type="number" id="weightInput" placeholder="Today's weight (kg)" step="0.1">
+            <button onclick="logWeight()">Log</button>
+        </div>
+        <div class="log-list" id="weightLog"></div>
+    </div>
+    
+    <div class="card">
+        <h2>📊 Recent Workouts</h2>
+        <div class="log-list" id="workoutLog"></div>
+    </div>
+    
+    <div class="card">
+        <h2>❤️ Fitbit + 🍽️ Lose It!</h2>
+        <div class="placeholder">Coming soon — needs API setup</div>
+    </div>
+</div>
+
+<!-- Workout Page (dynamically filled) -->
+<div class="page" id="page-workout">
+    <div class="workout-header">
+        <button class="back-btn" onclick="showDashboard()">←</button>
+        <div class="workout-title">
+            <h1 id="workout-name">Day 1: Back & Chest</h1>
+            <div class="cal-badge" id="workout-cal"></div>
+        </div>
+    </div>
+    <div id="workout-content"></div>
+    <button class="btn btn-full" onclick="saveWorkout()">💾 Save Workout</button>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')"><span class="icon">🏠</span>Home</button>
+    <button class="nav-btn" onclick="showWorkout(1)"><span class="icon">1️⃣</span>Day 1</button>
+    <button class="nav-btn" onclick="showWorkout(2)"><span class="icon">2️⃣</span>Day 2</button>
+    <button class="nav-btn" onclick="showWorkout(3)"><span class="icon">3️⃣</span>Day 3</button>
+    <button class="nav-btn" onclick="showWorkout(4)"><span class="icon">4️⃣</span>Day 4</button>
+    <button class="nav-btn" onclick="showWorkout(5)"><span class="icon">5️⃣</span>Day 5</button>
+    <button class="nav-btn" onclick="showWorkout(6)"><span class="icon">6️⃣</span>Day 6</button>
+</nav>
+
+<script>
+// Exercise Data
+const WARMUP = [
+    {name:"General Aerobic Primer", details:"5-8 min @ 60-75% HR", vid:null},
+    {name:"Hip Capsule Openers", details:"10-12/side", vid:null},
+    {name:"TFL + Glute Med", details:"10-12/side", vid:"1mRpD_BukUE"},
+    {name:"KB Hold + Shift", details:"20-30s/side", vid:"9xUakWLqQkE"},
+    {name:"A-Skips", details:"20-30m", vid:"6qSYlrN4XO4"},
+    {name:"Pogos Fwd/Bwd", details:"15 each", vid:"4iGjxt6EOVA"},
+    {name:"Split Stance Plyo", details:"5/side", vid:"sR1tV08BZBo"}
+];
+
+const CORE = [
+    {name:"Cable Deadbug", details:"1x20", vid:"bNVzDTV755U"},
+    {name:"Half Kneel Chop", details:"1x10/side", vid:"j9AIW1VfVMI"},
+    {name:"Tucked Front Lever", details:"1x5-10", vid:"km9werLyeEc"},
+    {name:"Reverse Plank", details:"1x30s", vid:"__7kqI--9eM"},
+    {name:"Bear Hold", details:"1x30s", vid:"MHhMFM35TlU"}
+];
+
+const WORKOUTS = {
+    1: {
+        name: "Back & Chest", cal: "1,800", calType: "maint", calLabel: "MAINTENANCE",
+        exercises: [
+            {section:"A1", name:"Alt DB Bench Hooklying", details:"3x6-12 • 2s squeeze", vid:"t2_ErE-CpVc"},
+            {section:"A2", name:"Chin Ups (90°)", details:"3x6-12 • 2s hold", vid:"4PI0YVp5DkM"},
+            {section:"B1", name:"Bent-Over Row", details:"3x6-12 • 2s iso", vid:"p9RihhjmJsw"},
+            {section:"B2", name:"DB Incline Bench", details:"3x6-12 • 2s hold", vid:"2Z-1QnLoiZQ"}
+        ]
+    },
+    2: {
+        name: "Legs", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        exercises: [
+            {section:"A1", name:"Cable Sissy Squat", details:"3x6-12 • 2s bottom", vid:"1SdEDlc93yE"},
+            {section:"A2", name:"Poliquin Split Squat", details:"3x6-12 • Eccentric", vid:"NAJn_bqLH2A"},
+            {section:"B1", name:"DB Ham Curl", details:"3x6-12 • 2s peak", vid:"nSsXfgnEOoY"},
+            {section:"B2", name:"Bilateral RDL", details:"3x6-12 • 2s stretch", vid:"CBOhr6H7BEY"}
+        ]
+    },
+    3: {
+        name: "Shoulders + Calves", cal: "850", calType: "rfl", calLabel: "RFL",
+        exercises: [
+            {section:"Shoulder", name:"Planche Lean Holds", details:"2x10-15 • Eccentric", vid:"9rC2awLSubk"},
+            {section:"Shoulder", name:"Archer Pulls", details:"2x10-15", vid:null},
+            {section:"Shoulder", name:"Bench Supine Y", details:"2x10-15 • 2s hold", vid:"hs0bpj7IXQU"},
+            {section:"Shoulder", name:"Lying Shoulder Compound", details:"2x10-15", vid:"-znJNdPnaOo"},
+            {section:"Shoulder", name:"Bench W Raise", details:"2x10-15", vid:"bu9eonvUQsU"},
+            {section:"Calves", name:"SL Straight Calf", details:"2x12-15", vid:"Bfl5du8ehao"},
+            {section:"Calves", name:"SL Soleus", details:"2x12-15", vid:"YScjSjU9eZg"}
+        ]
+    },
+    4: {
+        name: "Posterior Chain", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        exercises: [
+            {section:"A1", name:"Staggered Deadlift", details:"3x6-12 • 2s top", vid:"7DjCZG4CRhs"},
+            {section:"A2", name:"SL DB Bridge", details:"3x6-12 • 2s squeeze", vid:"sMDvwIcE4Bo"},
+            {section:"B1", name:"Thomas HF Ecc", details:"3x6-12 • Progress", vid:"ALQvMUuwqRU"},
+            {section:"B2", name:"Reverse Nordic", details:"3x6-12 • Quad ecc", vid:"95xUK7hb8dQ"}
+        ]
+    },
+    5: {
+        name: "Arms", cal: "850", calType: "rfl", calLabel: "RFL",
+        exercises: [
+            {section:"A1", name:"Cable Tricep Pushdown", details:"3x6-12 • 2s peak", vid:null},
+            {section:"A2", name:"Impossible Pushups", details:"3-5 • 8-10s down", vid:null},
+            {section:"B1", name:"Preacher Curl", details:"3x6-12 • 2s squeeze", vid:"fHaUi5VqU2w"},
+            {section:"B2", name:"Hooklying Curl", details:"3x6-12 • 2s hold", vid:"OpTv3xshJVY"}
+        ]
+    },
+    6: {
+        name: "Sprints", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        exercises: [
+            {section:"Sprint", name:"10s Sprints x5", details:"5 rounds • 80-90%, rest 60-90s", vid:null}
+        ]
+    }
+};
+
+let currentDay = 1;
+
+function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (page === 'dashboard') {
+        document.getElementById('page-dashboard').classList.add('active');
+        document.querySelector('.nav-btn').classList.add('active');
+    }
+}
+
+function showDashboard() {
+    showPage('dashboard');
+}
+
+function showWorkout(day) {
+    currentDay = day;
+    const w = WORKOUTS[day];
+    document.getElementById('workout-name').textContent = `Day ${day}: ${w.name}`;
+    document.getElementById('workout-cal').innerHTML = `<span class="cal-${w.calType}">${w.calLabel} — ${w.cal} kcal</span>`;
+    
+    let html = '<div class="card"><div class="section-title">🔥 Warm-Up</div>';
+    WARMUP.forEach((e,i) => html += renderExercise(e, 'w'+i));
+    html += '</div>';
+    
+    html += '<div class="card"><div class="section-title">🏋️ Main</div>';
+    let lastSection = '';
+    w.exercises.forEach((e,i) => {
+        const isSuperset = e.section.match(/^[AB]\d$/);
+        if (isSuperset && e.section !== lastSection) {
+            if (lastSection) html += '</div>';
+            html += `<div class="superset"><div class="superset-label">⚡ ${e.section}</div>`;
+        }
+        html += renderExercise(e, 'm'+i);
+        lastSection = isSuperset ? e.section : '';
+    });
+    if (lastSection) html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="card"><div class="section-title">🧘 Core</div>';
+    CORE.forEach((e,i) => html += renderExercise(e, 'c'+i));
+    html += '</div>';
+    
+    document.getElementById('workout-content').innerHTML = html;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-workout').classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-btn')[day].classList.add('active');
+    window.scrollTo(0,0);
+}
+
+function renderExercise(e, id) {
+    const vidHtml = e.vid 
+        ? `<a href="https://youtu.be/${e.vid}" target="_blank" class="ex-video"><img src="https://img.youtube.com/vi/${e.vid}/mqdefault.jpg"><div class="play"></div></a>`
+        : '<div class="no-vid">No video</div>';
+    return `
+        <div class="exercise" data-id="${id}">
+            <button class="ex-check" onclick="this.classList.toggle('done');this.closest('.exercise').classList.toggle('completed')"></button>
+            <div class="ex-info">
+                <div class="ex-name">${e.name}</div>
+                <div class="ex-details">${e.details}</div>
+                <div class="ex-inputs">
+                    <input type="number" placeholder="kg" step="0.5" class="inp-kg">
+                    <input type="number" placeholder="reps" class="inp-reps">
+                </div>
+            </div>
+            ${vidHtml}
+        </div>`;
+}
+
+function saveWorkout() {
+    const exercises = [];
+    document.querySelectorAll('#workout-content .exercise').forEach(ex => {
+        const name = ex.querySelector('.ex-name').textContent;
+        const kg = ex.querySelector('.inp-kg')?.value || '';
+        const reps = ex.querySelector('.inp-reps')?.value || '';
+        const done = ex.classList.contains('completed');
+        if (kg || reps || done) exercises.push({name, kg, reps, done});
+    });
+    const logs = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
+    logs.unshift({date: new Date().toISOString().split('T')[0], day: currentDay, exercises});
+    localStorage.setItem('workoutLogs', JSON.stringify(logs.slice(0,50)));
+    alert('Workout saved! 💪');
+    renderWorkoutLog();
+}
+
+function logWeight() {
+    const input = document.getElementById('weightInput');
+    const weight = parseFloat(input.value);
+    if (!weight) return;
+    const logs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+    logs.unshift({date: new Date().toISOString().split('T')[0], weight});
+    localStorage.setItem('weightLogs', JSON.stringify(logs.slice(0,30)));
+    input.value = '';
+    renderWeightLog();
+}
+
+function renderWeightLog() {
+    const logs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+    const el = document.getElementById('weightLog');
+    el.innerHTML = logs.length ? logs.slice(0,5).map(l => 
+        `<div class="log-item"><span>${l.date}</span><span style="color:#0DA57C;font-weight:bold">${l.weight} kg</span></div>`
+    ).join('') : '<div style="color:#555;text-align:center;padding:10px">No entries yet</div>';
+}
+
+function renderWorkoutLog() {
+    const logs = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
+    const el = document.getElementById('workoutLog');
+    const names = {1:'Back&Chest',2:'Legs',3:'Shoulders',4:'Posterior',5:'Arms',6:'Sprints'};
+    el.innerHTML = logs.length ? logs.slice(0,5).map(l => 
+        `<div class="log-item"><span>${l.date}</span><span style="color:#0DA57C">Day ${l.day}: ${names[l.day]||''}</span></div>`
+    ).join('') : '<div style="color:#555;text-align:center;padding:10px">No workouts yet</div>';
+}
+
+// Highlight today
+document.querySelectorAll('[data-dow]').forEach(row => {
+    if (parseInt(row.dataset.dow) === new Date().getDay()) row.classList.add('today');
+});
+
+renderWeightLog();
+renderWorkoutLog();
+</script>
+</body>
+</html>
