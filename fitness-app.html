@@ -78,6 +78,16 @@
             cursor: pointer;
         }
         .workout-select:focus { border-color: var(--primary); outline: none; }
+        .workout-note {
+            background: var(--card); border-left: 3px solid var(--primary);
+            padding: 10px 12px; margin-bottom: 14px; border-radius: 0 8px 8px 0;
+            font-size: 12px; color: #aaa;
+        }
+        .core-group { margin-bottom: 12px; }
+        .core-label { 
+            color: var(--primary); font-size: 11px; font-weight: 600;
+            margin-bottom: 8px; letter-spacing: 0.5px;
+        }
         
         .workout-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .workout-btn { 
@@ -245,8 +255,8 @@
         <div class="workout-grid" id="workoutGrid">
             <div class="workout-btn" data-day="1" onclick="showWorkout(1)"><div class="day">1</div><div class="name">Back & Chest</div></div>
             <div class="workout-btn" data-day="2" onclick="showWorkout(2)"><div class="day">2</div><div class="name">Legs</div></div>
-            <div class="workout-btn" data-day="3" onclick="showWorkout(3)"><div class="day">3</div><div class="name">Shoulders</div></div>
-            <div class="workout-btn" data-day="4" onclick="showWorkout(4)"><div class="day">4</div><div class="name">Posterior</div></div>
+            <div class="workout-btn" data-day="3" onclick="showWorkout(3)"><div class="day">3</div><div class="name">Shoulders + Calves</div></div>
+            <div class="workout-btn" data-day="4" onclick="showWorkout(4)"><div class="day">4</div><div class="name">Glutes & Hips</div></div>
             <div class="workout-btn" data-day="5" onclick="showWorkout(5)"><div class="day">5</div><div class="name">Arms</div></div>
             <div class="workout-btn" data-day="6" onclick="showWorkout(6)"><div class="day">6</div><div class="name">Sprints</div></div>
         </div>
@@ -297,7 +307,7 @@
     <button class="nav-btn" onclick="showWorkout(1)"><span class="icon">1</span>Back</button>
     <button class="nav-btn" onclick="showWorkout(2)"><span class="icon">2</span>Legs</button>
     <button class="nav-btn" onclick="showWorkout(3)"><span class="icon">3</span>Shld</button>
-    <button class="nav-btn" onclick="showWorkout(4)"><span class="icon">4</span>Post</button>
+    <button class="nav-btn" onclick="showWorkout(4)"><span class="icon">4</span>Glute</button>
     <button class="nav-btn" onclick="showWorkout(5)"><span class="icon">5</span>Arms</button>
     <button class="nav-btn" onclick="showWorkout(6)"><span class="icon">6</span>Sprnt</button>
     <button class="nav-btn" onclick="showPage('history')"><span class="icon">◷</span>Log</button>
@@ -318,85 +328,97 @@ const DEFAULT_SCHEDULE = {
 const WORKOUT_OPTIONS = [
     { value: '1', label: 'Day 1: Back & Chest', cal: 1800, type: 'maint' },
     { value: '2', label: 'Day 2: Legs', cal: 1300, type: 'normal' },
-    { value: '3', label: 'Day 3: Shoulders', cal: 850, type: 'rfl' },
-    { value: '4', label: 'Day 4: Posterior', cal: 1300, type: 'normal' },
+    { value: '3', label: 'Day 3: Shoulders + Calves', cal: 850, type: 'rfl' },
+    { value: '4', label: 'Day 4: Glutes & Hip Flexors', cal: 1300, type: 'normal' },
     { value: '5', label: 'Day 5: Arms', cal: 850, type: 'rfl' },
     { value: '6', label: 'Day 6: Sprints', cal: 1300, type: 'normal' },
     { value: 'rest', label: 'Rest', cal: 1300, type: 'normal' }
 ];
 
 // Exercise Data
+// Exercise Data - Sabrina & Mitch Final 5x4
 const WARMUP = [
     {name:"General Aerobic Primer", details:"5-8 min @ 60-75% HR", vid:null},
-    {name:"Hip Capsule Openers", details:"10-12/side", vid:null},
-    {name:"TFL + Glute Med", details:"10-12/side", vid:"1mRpD_BukUE"},
-    {name:"KB Hold + Shift", details:"20-30s/side", vid:"9xUakWLqQkE", timed:30},
+    {name:"Hip Capsule Openers", details:"10-12/side • Weight-vested, pelvis stable", vid:null},
+    {name:"TFL + Ant. Glute Med", details:"10-12/side • Ankle weight", vid:"1mRpD_BukUE"},
+    {name:"KB Hold + Hip Shift", details:"20-30s/side • Wall-supported", vid:"9xUakWLqQkE", timed:30},
     {name:"A-Skips", details:"20-30m", vid:"6qSYlrN4XO4"},
-    {name:"Pogos Fwd/Bwd", details:"15 each", vid:"4iGjxt6EOVA"},
-    {name:"Split Stance Plyo", details:"5/side", vid:"sR1tV08BZBo"}
+    {name:"Pogos Fwd/Bwd", details:"15 each direction", vid:"4iGjxt6EOVA"},
+    {name:"Plyo Split Jumps", details:"5 reps/side", vid:"sR1tV08BZBo"}
 ];
 
-const CORE = [
-    {name:"Cable Deadbug", details:"1x20", vid:"bNVzDTV755U"},
-    {name:"Half Kneel Chop", details:"1x10/side", vid:"j9AIW1VfVMI"},
-    {name:"Tucked Front Lever", details:"1x5-10", vid:"km9werLyeEc"},
-    {name:"Reverse Plank", details:"1x30s", vid:"__7kqI--9eM", timed:30},
-    {name:"Bear Hold", details:"1x30s", vid:"MHhMFM35TlU", timed:30}
+// Core: Choose 1 dynamic + 1 isometric
+const CORE_DYNAMIC = [
+    {name:"Cable Deadbug", details:"1x20 (10/side)", vid:"bNVzDTV755U"},
+    {name:"Half Kneel Cable Chop", details:"1x10/side", vid:"j9AIW1VfVMI"},
+    {name:"Tucked Front Lever", details:"5-10 reps • Bands OK", vid:"km9werLyeEc"}
+];
+
+const CORE_ISOMETRIC = [
+    {name:"Reverse Plank", details:"Hold 30s", vid:"__7kqI--9eM", timed:30},
+    {name:"Bear Crawl Hold", details:"Hold 30s", vid:"MHhMFM35TlU", timed:30}
 ];
 
 const WORKOUTS = {
     1: {
         name: "Back & Chest", cal: "1,800", calType: "maint", calLabel: "MAINTENANCE",
+        note: "3 sets, 6-12 reps. Superset A gets warm-up set (doesn't count).",
         exercises: [
-            {section:"A", name:"Alt DB Bench Hooklying", details:"3x6-12 • 2s squeeze", vid:"t2_ErE-CpVc"},
-            {section:"A", name:"Chin Ups (90°)", details:"3x6-12 • 2s hold", vid:"4PI0YVp5DkM"},
-            {section:"B", name:"Bent-Over Row", details:"3x6-12 • 2s iso", vid:"p9RihhjmJsw"},
-            {section:"B", name:"DB Incline Bench", details:"3x6-12 • 2s hold", vid:"2Z-1QnLoiZQ"}
+            {section:"A", name:"Bent-Over Row", details:"3x6-12 • Deep stable hinge", vid:"p9RihhjmJsw"},
+            {section:"A", name:"Alt DB Bench Hooklying", details:"3x6-12", vid:"t2_ErE-CpVc"},
+            {section:"B", name:"Chin Ups (90° knees)", details:"3x6-12", vid:"4PI0YVp5DkM"},
+            {section:"B", name:"DB Incline Bench", details:"3x6-12 • Bilateral", vid:"2Z-1QnLoiZQ"},
+            {section:"Finisher", name:"Alt DB Floor Flys", details:"3x6-12", vid:"bgC53-J-6gA"}
         ]
     },
     2: {
         name: "Legs", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        note: "3 sets, 6-12 reps. Superset A gets warm-up set.",
         exercises: [
-            {section:"A", name:"Cable Sissy Squat", details:"3x6-12 • 2s bottom", vid:"1SdEDlc93yE"},
-            {section:"A", name:"Poliquin Split Squat", details:"3x6-12 • Eccentric", vid:"NAJn_bqLH2A"},
-            {section:"B", name:"DB Ham Curl", details:"3x6-12 • 2s peak", vid:"nSsXfgnEOoY"},
-            {section:"B", name:"Bilateral RDL", details:"3x6-12 • 2s stretch", vid:"CBOhr6H7BEY"}
+            {section:"A", name:"Cable Sissy Squat", details:"3x6-12 • Heel elevated", vid:"1SdEDlc93yE"},
+            {section:"A", name:"DB Ham Curl", details:"3x6-12", vid:"nSsXfgnEOoY"},
+            {section:"B", name:"Poliquin Split Squat", details:"3x6-12 • Quad eccentric", vid:"NAJn_bqLH2A"},
+            {section:"B", name:"Bilateral RDL", details:"3x6-12 • Hamstrings", vid:"CBOhr6H7BEY"}
         ]
     },
     3: {
         name: "Shoulders + Calves", cal: "850", calType: "rfl", calLabel: "RFL",
+        note: "10-15 reps, 1-2 sets each. No supersets.",
         exercises: [
-            {section:"Shoulder", name:"Planche Lean Holds", details:"2x10-15 • Eccentric", vid:"9rC2awLSubk"},
-            {section:"Shoulder", name:"Archer Pulls", details:"2x10-15", vid:null},
-            {section:"Shoulder", name:"Bench Supine Y", details:"2x10-15 • 2s hold", vid:"hs0bpj7IXQU"},
-            {section:"Shoulder", name:"Lying Shoulder Compound", details:"2x10-15", vid:"-znJNdPnaOo"},
-            {section:"Shoulder", name:"Bench W Raise", details:"2x10-15", vid:"bu9eonvUQsU"},
-            {section:"Calves", name:"SL Straight Calf", details:"2x12-15", vid:"Bfl5du8ehao"},
-            {section:"Calves", name:"SL Soleus", details:"2x12-15", vid:"YScjSjU9eZg"}
+            {section:"Shoulders", name:"Planche Lean Holds", details:"2x10-15 • Parallettes", vid:"9rC2awLSubk"},
+            {section:"Shoulders", name:"Contralateral Archer Pulls", details:"2x10-15", vid:null},
+            {section:"Shoulders", name:"Bench Supine Y Raise", details:"2x10-15", vid:"hs0bpj7IXQU"},
+            {section:"Shoulders", name:"Lying Shoulder Compound", details:"2x10-15", vid:"-znJNdPnaOo"},
+            {section:"Shoulders", name:"Bench W Raise", details:"2x10-15 • Prone 50°", vid:"bu9eonvUQsU"},
+            {section:"Calves", name:"SL Straight-Knee Calf", details:"2x12-15 • Plates", vid:"Bfl5du8ehao"},
+            {section:"Calves", name:"SL Bent-Knee Soleus", details:"2x12-15 • Plates", vid:"YScjSjU9eZg"}
         ]
     },
     4: {
-        name: "Posterior Chain", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        name: "Glutes & Hip Flexors", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        note: "3 sets, 6-12 reps. Superset A gets warm-up set.",
         exercises: [
-            {section:"A", name:"Staggered Deadlift", details:"3x6-12 • 2s top", vid:"7DjCZG4CRhs"},
-            {section:"A", name:"SL DB Bridge", details:"3x6-12 • 2s squeeze", vid:"sMDvwIcE4Bo"},
-            {section:"B", name:"Thomas HF Ecc", details:"3x6-12 • Progress", vid:"ALQvMUuwqRU"},
-            {section:"B", name:"Reverse Nordic", details:"3x6-12 • Quad ecc", vid:"95xUK7hb8dQ"}
+            {section:"A", name:"Staggered Stance Deadlift", details:"3x6-12", vid:"7DjCZG4CRhs"},
+            {section:"A", name:"Thomas HF Eccentrics", details:"3x6-12 • KB/Monkey feet", vid:"ALQvMUuwqRU"},
+            {section:"B", name:"SL DB Glute Bridge", details:"3x6-12", vid:"sMDvwIcE4Bo"},
+            {section:"B", name:"Cable Reverse Nordics", details:"3x6-12 • Plyobox", vid:"95xUK7hb8dQ"}
         ]
     },
     5: {
         name: "Arms", cal: "850", calType: "rfl", calLabel: "RFL",
+        note: "3 sets, 6-12 reps. Superset A gets warm-up set.",
         exercises: [
-            {section:"A", name:"Cable Tricep Pushdown", details:"3x6-12 • 2s peak", vid:null},
-            {section:"A", name:"Impossible Pushups", details:"3-5 • 8-10s down", vid:null, timed:10},
-            {section:"B", name:"Preacher Curl", details:"3x6-12 • 2s squeeze", vid:"fHaUi5VqU2w"},
-            {section:"B", name:"Hooklying Curl", details:"3x6-12 • 2s hold", vid:"OpTv3xshJVY"}
+            {section:"A", name:"Cable Tricep Pushdown", details:"3x6-12 • Bench, single arm", vid:null},
+            {section:"A", name:"Bench Preacher Curl", details:"3x6-12 • Respiratory", vid:"fHaUi5VqU2w"},
+            {section:"B", name:"Impossible Eccentric Pushups", details:"3-5 reps • 8-10s down", vid:null, timed:10},
+            {section:"B", name:"Hooklying Cable Curl", details:"3x6-12", vid:"OpTv3xshJVY"}
         ]
     },
     6: {
         name: "Sprints", cal: "1,300", calType: "normal", calLabel: "NORMAL",
+        note: "Warm up thoroughly!",
         exercises: [
-            {section:"Sprint", name:"10s Sprints x5", details:"5 rounds • 80-90%, rest 60-90s", vid:null, timed:10}
+            {section:"Sprint", name:"10s Sprints", details:"5 rounds • 80-90%, rest 60-90s", vid:null, timed:10}
         ]
     }
 };
@@ -446,7 +468,14 @@ function showWorkout(day) {
     // Get previous values for this workout
     const prevData = getPreviousWorkoutData(day);
     
-    let html = '<div class="card"><div class="section-title">WARM-UP</div>';
+    let html = '';
+    
+    // Show workout note if present
+    if (w.note) {
+        html += `<div class="workout-note">${w.note}</div>`;
+    }
+    
+    html += '<div class="card"><div class="section-title">WARM-UP</div>';
     WARMUP.forEach((e,i) => html += renderExercise(e, 'w'+i, prevData));
     html += '</div>';
     
@@ -479,9 +508,12 @@ function showWorkout(day) {
     }
     html += '</div>';
     
-    html += '<div class="card"><div class="section-title">CORE</div>';
-    CORE.forEach((e,i) => html += renderExercise(e, 'c'+i, prevData));
-    html += '</div>';
+    html += '<div class="card"><div class="section-title">CORE — Pick 1 dynamic + 1 isometric</div>';
+    html += '<div class="core-group"><div class="core-label">Dynamic (choose 1):</div>';
+    CORE_DYNAMIC.forEach((e,i) => html += renderExercise(e, 'cd'+i, prevData));
+    html += '</div><div class="core-group"><div class="core-label">Isometric (choose 1):</div>';
+    CORE_ISOMETRIC.forEach((e,i) => html += renderExercise(e, 'ci'+i, prevData));
+    html += '</div></div>';
     
     document.getElementById('workout-content').innerHTML = html;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
