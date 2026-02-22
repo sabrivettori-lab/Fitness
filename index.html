@@ -789,9 +789,14 @@ function base64UrlEncode(buffer) {
 
 // Initialize Fitbit on page load
 async function initFitbit() {
+    console.log('[Fitbit] Init - URL:', window.location.href);
+    console.log('[Fitbit] Token exists:', !!localStorage.getItem('fitbit_token'));
+    console.log('[Fitbit] Verifier exists:', !!localStorage.getItem('fitbit_code_verifier'));
+    
     // Check for authorization code in URL
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    console.log('[Fitbit] Code in URL:', !!code);
     
     if (code) {
         // Strip any hash fragment (e.g., #_=_)
@@ -868,7 +873,7 @@ async function exchangeCodeForToken(code) {
         if (!response.ok) {
             const errorData = await response.json();
             console.error('Token exchange error:', errorData);
-            throw new Error(`Token exchange failed: ${response.status}`);
+            throw new Error(`Token exchange failed: ${response.status} - ${JSON.stringify(errorData)}`);
         }
         
         const data = await response.json();
@@ -1032,7 +1037,8 @@ function handleFitbitError(error) {
     } else {
         container.innerHTML = `
             <div class="fitbit-error">
-                Unable to fetch Fitbit data. Please try again.
+                Unable to fetch Fitbit data.<br>
+                <small style="color:#888;word-break:break-all;">Debug: ${error.message}</small>
             </div>
             <div class="fitbit-actions">
                 <button class="fitbit-refresh-btn" onclick="fetchFitbitData()">↺ Retry</button>
