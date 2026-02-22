@@ -762,7 +762,8 @@ const FITBIT_CONFIG = {
     clientId: '23V3CN',
     redirectUri: 'https://sabrivettori-lab.github.io/Fitness/',
     authUri: 'https://www.fitbit.com/oauth2/authorize',
-    tokenUri: 'https://api.fitbit.com/oauth2/token',
+    tokenUri: 'https://fitbit-proxy.sabri-vettori.workers.dev/oauth2/token',
+    apiBase: 'https://fitbit-proxy.sabri-vettori.workers.dev',
     scope: 'activity heartrate sleep weight profile'
 };
 
@@ -970,9 +971,9 @@ async function fetchFitbitData() {
     try {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
         const [activities, heartRate, sleep] = await Promise.all([
-            fetchFitbitAPI(`https://api.fitbit.com/1/user/-/activities/date/${today}.json`, token),
-            fetchFitbitAPI(`https://api.fitbit.com/1/user/-/activities/heart/date/${today}/1d.json`, token),
-            fetchFitbitAPI(`https://api.fitbit.com/1/user/-/sleep/date/${today}.json`, token)
+            fetchFitbitAPI(`${FITBIT_CONFIG.apiBase}/1/user/-/activities/date/${today}.json`, token),
+            fetchFitbitAPI(`${FITBIT_CONFIG.apiBase}/1/user/-/activities/heart/date/${today}/1d.json`, token),
+            fetchFitbitAPI(`${FITBIT_CONFIG.apiBase}/1/user/-/sleep/date/${today}.json`, token)
         ]);
         
         const data = {
