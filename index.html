@@ -118,7 +118,14 @@
         .workout-select:focus { border-color: var(--primary); outline: none; }
         
         /* Calorie Type Selector */
-        .cal-type-selector {
+        .cal-type-select {
+            background: var(--dark); color: #eee; border: 1px solid var(--border);
+            border-radius: 6px; padding: 4px 2px; font-size: 11px; cursor: pointer;
+            width: 100%; text-align: center;
+        }
+        .cal-type-select:focus { border-color: var(--primary); outline: none; }
+        .cal-type-select option { background: var(--dark); }
+        .cal-type-selector-old {
             display: flex; gap: 3px; margin-bottom: 4px;
         }
         .cal-type-btn {
@@ -313,6 +320,106 @@
         }
         
         /* History Page */
+        .history-week-card {
+            background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 16px;
+        }
+        .history-week-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px solid var(--primary);
+        }
+        .history-week-title {
+            font-size: 18px; font-weight: bold; color: var(--primary);
+        }
+        .history-week-dates {
+            font-size: 11px; color: #888;
+        }
+        .history-section {
+            margin-bottom: 16px;
+        }
+        .history-section:last-child {
+            margin-bottom: 0;
+        }
+        .history-section-title {
+            font-size: 12px; font-weight: 600; color: var(--accent);
+            margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .history-workouts {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+            margin-bottom: 8px;
+        }
+        .history-workout-badge {
+            background: var(--dark); border: 1px solid var(--border);
+            border-radius: 6px; padding: 8px 4px; text-align: center;
+            font-size: 11px; cursor: pointer; transition: all 0.2s;
+        }
+        .history-workout-badge:active {
+            transform: scale(0.95);
+        }
+        .history-workout-badge.done {
+            background: rgba(94, 234, 212, 0.15); border-color: var(--primary);
+        }
+        .history-workout-badge.done:hover {
+            background: rgba(94, 234, 212, 0.25);
+        }
+        .history-workout-badge .day-num {
+            font-size: 16px; font-weight: bold; color: var(--primary);
+            margin-bottom: 2px;
+        }
+        .history-workout-badge.done .day-num::after {
+            content: " ✓"; font-size: 12px;
+        }
+        .history-workout-badge .day-name {
+            font-size: 9px; color: #888;
+        }
+        .history-workout-badge.done .day-name::after {
+            content: " ▼"; font-size: 8px; color: var(--primary);
+        }
+        .history-workout-details {
+            display: none; background: var(--dark); border-radius: 6px;
+            padding: 10px; margin-top: 8px; font-size: 11px;
+        }
+        .history-workout-details.expanded {
+            display: block;
+        }
+        .history-workout-ex {
+            padding: 4px 0; color: #aaa;
+        }
+        .history-workout-ex span {
+            color: var(--primary); font-weight: 600;
+        }
+        .history-cal-row {
+            display: grid; grid-template-columns: 40px 30px 60px 60px 50px;
+            gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border);
+            font-size: 11px;
+        }
+        .history-cal-row:last-child {
+            border-bottom: none;
+        }
+        .history-cal-row.total {
+            font-weight: bold; background: rgba(94, 234, 212, 0.1);
+            padding: 8px 6px; border-radius: 4px; margin-top: 4px;
+        }
+        .history-cal-header {
+            font-weight: 600; color: var(--accent); text-transform: uppercase;
+            font-size: 9px; padding-bottom: 4px; border-bottom: 1px solid var(--accent);
+        }
+        .history-stats {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .history-stat {
+            background: var(--dark); border-radius: 6px; padding: 10px;
+            text-align: center;
+        }
+        .history-stat-value {
+            font-size: 16px; font-weight: bold; color: var(--primary);
+            margin-bottom: 2px;
+        }
+        .history-stat-value.negative {
+            color: var(--accent);
+        }
+        .history-stat-label {
+            font-size: 9px; color: #888; text-transform: uppercase;
+        }
         .history-item {
             background: var(--dark); border-radius: 8px; padding: 10px; margin-bottom: 8px;
         }
@@ -443,7 +550,7 @@
 <body>
 
 <!-- PWA Version Badge -->
-<div class="pwa-badge">v2.3 PWA</div>
+<div class="pwa-badge">v2.4 PWA</div>
 
 <!-- Install Banner -->
 <div class="install-banner" id="installBanner">
@@ -471,84 +578,14 @@
     <div class="card">
         <h2>THIS WEEK</h2>
         <table class="schedule-table">
-            <tr><th>Day</th><th>Type</th><th>Workout</th><th>Target</th><th>Actual</th></tr>
-            <tr data-dow="5">
-                <td>Fri</td>
-                <td><div class="cal-type-selector" data-day="fri">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('fri', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('fri', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('fri', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="fri"></select></td>
-                <td class="cal-target" data-day="fri">1800</td>
-                <td><input type="number" class="cal-input" data-day="fri" placeholder="—"></td>
-            </tr>
-            <tr data-dow="6">
-                <td>Sat</td>
-                <td><div class="cal-type-selector" data-day="sat">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('sat', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('sat', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('sat', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="sat"></select></td>
-                <td class="cal-target" data-day="sat">1300</td>
-                <td><input type="number" class="cal-input" data-day="sat" placeholder="—"></td>
-            </tr>
-            <tr data-dow="0">
-                <td>Sun</td>
-                <td><div class="cal-type-selector" data-day="sun">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('sun', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('sun', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('sun', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="sun"></select></td>
-                <td class="cal-target" data-day="sun">1300</td>
-                <td><input type="number" class="cal-input" data-day="sun" placeholder="—"></td>
-            </tr>
-            <tr data-dow="1">
-                <td>Mon</td>
-                <td><div class="cal-type-selector" data-day="mon">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('mon', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('mon', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('mon', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="mon"></select></td>
-                <td class="cal-target" data-day="mon">850</td>
-                <td><input type="number" class="cal-input" data-day="mon" placeholder="—"></td>
-            </tr>
-            <tr data-dow="2">
-                <td>Tue</td>
-                <td><div class="cal-type-selector" data-day="tue">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('tue', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('tue', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('tue', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="tue"></select></td>
-                <td class="cal-target" data-day="tue">1300</td>
-                <td><input type="number" class="cal-input" data-day="tue" placeholder="—"></td>
-            </tr>
-            <tr data-dow="3">
-                <td>Wed</td>
-                <td><div class="cal-type-selector" data-day="wed">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('wed', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('wed', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('wed', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="wed"></select></td>
-                <td class="cal-target" data-day="wed">850</td>
-                <td><input type="number" class="cal-input" data-day="wed" placeholder="—"></td>
-            </tr>
-            <tr data-dow="4">
-                <td>Thu</td>
-                <td><div class="cal-type-selector" data-day="thu">
-                    <button class="cal-type-btn" data-type="m" onclick="setCalType('thu', 'm')">M</button>
-                    <button class="cal-type-btn" data-type="n" onclick="setCalType('thu', 'n')">N</button>
-                    <button class="cal-type-btn" data-type="r" onclick="setCalType('thu', 'r')">R</button>
-                </div></td>
-                <td><select class="workout-select" data-day="thu"></select></td>
-                <td class="cal-target" data-day="thu">1300</td>
-                <td><input type="number" class="cal-input" data-day="thu" placeholder="—"></td>
-            </tr>
+            <tr><th>Day</th><th>Workout</th><th>Target</th><th>Actual</th></tr>
+            <tr data-dow="5"><td>Fri</td><td><select class="workout-select" data-day="fri"></select></td><td><select class="cal-type-select" data-day="fri" onchange="setCalType('fri', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="fri" placeholder="—"></td></tr>
+            <tr data-dow="6"><td>Sat</td><td><select class="workout-select" data-day="sat"></select></td><td><select class="cal-type-select" data-day="sat" onchange="setCalType('sat', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="sat" placeholder="—"></td></tr>
+            <tr data-dow="0"><td>Sun</td><td><select class="workout-select" data-day="sun"></select></td><td><select class="cal-type-select" data-day="sun" onchange="setCalType('sun', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="sun" placeholder="—"></td></tr>
+            <tr data-dow="1"><td>Mon</td><td><select class="workout-select" data-day="mon"></select></td><td><select class="cal-type-select" data-day="mon" onchange="setCalType('mon', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="mon" placeholder="—"></td></tr>
+            <tr data-dow="2"><td>Tue</td><td><select class="workout-select" data-day="tue"></select></td><td><select class="cal-type-select" data-day="tue" onchange="setCalType('tue', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="tue" placeholder="—"></td></tr>
+            <tr data-dow="3"><td>Wed</td><td><select class="workout-select" data-day="wed"></select></td><td><select class="cal-type-select" data-day="wed" onchange="setCalType('wed', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="wed" placeholder="—"></td></tr>
+            <tr data-dow="4"><td>Thu</td><td><select class="workout-select" data-day="thu"></select></td><td><select class="cal-type-select" data-day="thu" onchange="setCalType('thu', this.value)"><option value="m">M 1800</option><option value="n">N 1300</option><option value="r">R 850</option></select></td><td><input type="number" class="cal-input" data-day="thu" placeholder="—"></td></tr>
         </table>
         <button class="btn btn-small" onclick="resetSchedule()" style="margin-top:10px;font-size:11px;padding:8px 12px;">↺ Reset to default</button>
     </div>
@@ -725,42 +762,190 @@ const FITBIT_CONFIG = {
     clientId: '23V3CN',
     redirectUri: 'https://sabrivettori-lab.github.io/Fitness/',
     authUri: 'https://www.fitbit.com/oauth2/authorize',
-    scope: 'activity heartrate sleep weight profile',
-    expiresIn: '31536000' // 1 year
+    tokenUri: 'https://api.fitbit.com/oauth2/token',
+    scope: 'activity heartrate sleep weight profile'
 };
 
-// Check for OAuth redirect on page load
-function checkFitbitAuth() {
-    const hash = window.location.hash;
-    if (hash && hash.includes('access_token')) {
-        const params = new URLSearchParams(hash.substring(1));
-        const token = params.get('access_token');
-        if (token) {
-            localStorage.setItem('fitbit_token', token);
-            // Clean URL
-            window.history.replaceState(null, null, window.location.pathname);
-            // Fetch data
-            fetchFitbitData();
-        }
-    } else if (localStorage.getItem('fitbit_token')) {
-        // Token exists, fetch data
+// PKCE Helper Functions
+function generateCodeVerifier() {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return base64UrlEncode(array);
+}
+
+async function generateCodeChallenge(verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return base64UrlEncode(new Uint8Array(digest));
+}
+
+function base64UrlEncode(buffer) {
+    return btoa(String.fromCharCode(...buffer))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+}
+
+// Initialize Fitbit on page load
+async function initFitbit() {
+    // Check for authorization code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+        // Strip any hash fragment (e.g., #_=_)
+        const cleanCode = code.split('#')[0];
+        await exchangeCodeForToken(cleanCode);
+        // Clean URL
+        window.history.replaceState(null, null, window.location.pathname);
+        return;
+    }
+    
+    // Check if token exists
+    const token = localStorage.getItem('fitbit_token');
+    if (token) {
         fetchFitbitData();
     } else {
-        // No token, show connect button
         renderFitbitDisconnected();
     }
 }
 
-// Initiate Fitbit OAuth
-function connectFitbit() {
-    const authUrl = `${FITBIT_CONFIG.authUri}?response_type=token&client_id=${FITBIT_CONFIG.clientId}&redirect_uri=${encodeURIComponent(FITBIT_CONFIG.redirectUri)}&scope=${encodeURIComponent(FITBIT_CONFIG.scope)}&expires_in=${FITBIT_CONFIG.expiresIn}`;
-    window.location.href = authUrl;
+// Initiate Fitbit OAuth with PKCE
+async function connectFitbit() {
+    try {
+        // Generate PKCE parameters
+        const codeVerifier = generateCodeVerifier();
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
+        
+        // Store verifier for token exchange
+        localStorage.setItem('fitbit_code_verifier', codeVerifier);
+        
+        // Redirect to Fitbit authorization
+        const authUrl = `${FITBIT_CONFIG.authUri}?` +
+            `client_id=${FITBIT_CONFIG.clientId}` +
+            `&response_type=code` +
+            `&code_challenge=${codeChallenge}` +
+            `&code_challenge_method=S256` +
+            `&redirect_uri=${encodeURIComponent(FITBIT_CONFIG.redirectUri)}` +
+            `&scope=${encodeURIComponent(FITBIT_CONFIG.scope)}`;
+        
+        window.location.href = authUrl;
+    } catch (error) {
+        console.error('Error initiating Fitbit OAuth:', error);
+        alert('Failed to connect to Fitbit. Please try again.');
+    }
+}
+
+// Exchange authorization code for access token
+async function exchangeCodeForToken(code) {
+    const codeVerifier = localStorage.getItem('fitbit_code_verifier');
+    if (!codeVerifier) {
+        console.error('No code verifier found');
+        renderFitbitDisconnected();
+        return;
+    }
+    
+    renderFitbitLoading();
+    
+    try {
+        const params = new URLSearchParams({
+            client_id: FITBIT_CONFIG.clientId,
+            code: code,
+            code_verifier: codeVerifier,
+            grant_type: 'authorization_code',
+            redirect_uri: FITBIT_CONFIG.redirectUri
+        });
+        
+        const response = await fetch(FITBIT_CONFIG.tokenUri, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Token exchange error:', errorData);
+            throw new Error(`Token exchange failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Store tokens
+        localStorage.setItem('fitbit_token', data.access_token);
+        if (data.refresh_token) {
+            localStorage.setItem('fitbit_refresh_token', data.refresh_token);
+        }
+        
+        // Clean up verifier
+        localStorage.removeItem('fitbit_code_verifier');
+        
+        // Fetch Fitbit data
+        await fetchFitbitData();
+    } catch (error) {
+        console.error('Error exchanging code for token:', error);
+        handleFitbitError(error);
+    }
+}
+
+// Refresh access token
+async function refreshFitbitToken() {
+    const refreshToken = localStorage.getItem('fitbit_refresh_token');
+    if (!refreshToken) {
+        console.error('No refresh token available');
+        localStorage.removeItem('fitbit_token');
+        renderFitbitDisconnected();
+        return false;
+    }
+    
+    try {
+        const params = new URLSearchParams({
+            client_id: FITBIT_CONFIG.clientId,
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        });
+        
+        const response = await fetch(FITBIT_CONFIG.tokenUri, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        });
+        
+        if (!response.ok) {
+            console.error('Token refresh failed:', response.status);
+            localStorage.removeItem('fitbit_token');
+            localStorage.removeItem('fitbit_refresh_token');
+            renderFitbitDisconnected();
+            return false;
+        }
+        
+        const data = await response.json();
+        
+        // Store new tokens
+        localStorage.setItem('fitbit_token', data.access_token);
+        if (data.refresh_token) {
+            localStorage.setItem('fitbit_refresh_token', data.refresh_token);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        localStorage.removeItem('fitbit_token');
+        localStorage.removeItem('fitbit_refresh_token');
+        renderFitbitDisconnected();
+        return false;
+    }
 }
 
 // Disconnect Fitbit
 function disconnectFitbit() {
     if (confirm('Disconnect Fitbit? You can reconnect anytime.')) {
         localStorage.removeItem('fitbit_token');
+        localStorage.removeItem('fitbit_refresh_token');
         localStorage.removeItem('fitbit_data');
         localStorage.removeItem('fitbit_last_refresh');
         renderFitbitDisconnected();
@@ -787,7 +972,7 @@ async function fetchFitbitData() {
         const data = {
             steps: activities?.summary?.steps || 0,
             calories: activities?.summary?.caloriesOut || 0,
-            activeMinutes: activities?.summary?.veryActiveMinutes + activities?.summary?.fairlyActiveMinutes || 0,
+            activeMinutes: (activities?.summary?.veryActiveMinutes || 0) + (activities?.summary?.fairlyActiveMinutes || 0),
             heartRate: heartRate?.['activities-heart']?.[0]?.value?.restingHeartRate || null,
             sleep: sleep?.summary?.totalMinutesAsleep || 0
         };
@@ -798,7 +983,17 @@ async function fetchFitbitData() {
         renderFitbitConnected(data);
     } catch (error) {
         console.error('Fitbit fetch error:', error);
-        handleFitbitError(error);
+        
+        // If 401, try to refresh token
+        if (error.message.includes('401')) {
+            const refreshed = await refreshFitbitToken();
+            if (refreshed) {
+                // Retry fetch after successful refresh
+                await fetchFitbitData();
+            }
+        } else {
+            handleFitbitError(error);
+        }
     }
 }
 
@@ -812,7 +1007,7 @@ async function fetchFitbitAPI(url, token) {
     
     if (!response.ok) {
         if (response.status === 401) {
-            throw new Error('Token expired');
+            throw new Error('401 Unauthorized');
         }
         throw new Error(`API Error: ${response.status}`);
     }
@@ -824,8 +1019,7 @@ async function fetchFitbitAPI(url, token) {
 function handleFitbitError(error) {
     const container = document.getElementById('fitbitContainer');
     
-    if (error.message === 'Token expired') {
-        localStorage.removeItem('fitbit_token');
+    if (error.message.includes('401')) {
         container.innerHTML = `
             <div class="fitbit-error">
                 Your Fitbit session has expired. Please reconnect.
@@ -1060,25 +1254,10 @@ function setCalType(day, type) {
 function updateCalTypeUI() {
     const calTypes = getCalTypes();
     
-    document.querySelectorAll('.cal-type-selector').forEach(selector => {
-        const day = selector.dataset.day;
+    document.querySelectorAll('.cal-type-select').forEach(select => {
+        const day = select.dataset.day;
         const activeType = calTypes[day] || 'n';
-        
-        // Update button states
-        selector.querySelectorAll('.cal-type-btn').forEach(btn => {
-            btn.classList.remove('active-m', 'active-n', 'active-r');
-            if (btn.dataset.type === activeType) {
-                btn.classList.add(`active-${activeType}`);
-            }
-        });
-        
-        // Update target calorie display
-        const preset = CAL_TYPE_PRESETS[activeType];
-        const targetCell = document.querySelector(`.cal-target[data-day="${day}"]`);
-        if (targetCell && preset) {
-            targetCell.textContent = preset.cal;
-            targetCell.className = `cal-target ${preset.class}`;
-        }
+        select.value = activeType;
     });
 }
 
@@ -1117,6 +1296,8 @@ function showPage(page) {
         document.querySelectorAll('.nav-btn')[7].classList.add('active');
         renderReport();
     } else if (page === 'history') {
+        historyWeek = currentWeek; // Start at current week
+        document.getElementById('historyWeekNum').textContent = historyWeek;
         document.getElementById('page-history').classList.add('active');
         document.querySelectorAll('.nav-btn')[8].classList.add('active');
         renderHistory();
@@ -1321,27 +1502,247 @@ function renderWorkoutLog() {
     ).join('') : '<div style="color:#555;text-align:center;padding:10px">No workouts yet</div>';
 }
 
+// History Week Navigation
+let historyWeek = currentWeek;
+
+function changeHistoryWeek(delta) {
+    historyWeek = Math.max(1, historyWeek + delta);
+    document.getElementById('historyWeekNum').textContent = historyWeek;
+    renderHistory();
+}
+
+function toggleWorkoutDetails(weekNum, dayNum) {
+    const el = document.getElementById(`workout-details-${weekNum}-${dayNum}`);
+    if (el) {
+        el.classList.toggle('expanded');
+    }
+}
+
 function renderHistory() {
-    const logs = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
     const el = document.getElementById('historyContent');
-    const names = {1:'Back & Chest',2:'Legs',3:'Shoulders + Calves',4:'Posterior Chain',5:'Arms',6:'Sprints'};
+    const weekNum = historyWeek;
     
-    if (!logs.length) {
-        el.innerHTML = '<div class="card"><div class="placeholder">No workout history yet</div></div>';
+    // Get all data for this week
+    const workoutLogs = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
+    const weightLogs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+    const caloriesKey = `calories_week_${weekNum}`;
+    const calTypesKey = `calTypes_week_${weekNum}`;
+    const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+    const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
+    
+    const weekWorkouts = workoutLogs.filter(l => l.week === weekNum);
+    const weekWeights = weightLogs.filter(l => l.week === weekNum);
+    
+    // Check if week has any data
+    const hasData = weekWorkouts.length > 0 || weekWeights.length > 0 || Object.keys(actualCals).length > 0;
+    
+    if (!hasData) {
+        const isFuture = weekNum > currentWeek;
+        const message = isFuture 
+            ? `Week ${weekNum} hasn't started yet` 
+            : `No data logged for Week ${weekNum}`;
+        el.innerHTML = `<div class="card"><div class="placeholder">${message}</div></div>`;
         return;
     }
     
-    el.innerHTML = logs.slice(0, 20).map(l => `
-        <div class="history-item">
-            <div class="history-header">
-                <div class="history-date">${l.date}</div>
-                <div class="history-day">Week ${l.week || '?'} • Day ${l.day}: ${names[l.day]}</div>
-            </div>
-            ${l.exercises.filter(e => e.kg || e.reps).map(e => 
-                `<div class="history-ex">${e.name}: <span>${e.kg || '—'}kg × ${e.reps || '—'}</span></div>`
-            ).join('')}
+    const names = {
+        1: 'Back & Chest',
+        2: 'Legs',
+        3: 'Shoulders',
+        4: 'Glutes',
+        5: 'Arms',
+        6: 'Sprints'
+    };
+    
+    // Build week summary card
+    let html = '<div class="history-week-card">';
+    
+    // Calculate quick stats for header
+    const workoutsCompleted = weekWorkouts.length;
+    const totalDaysLogged = Object.keys(actualCals).length;
+    const hasWeightData = weekWeights.length >= 2;
+    
+    let quickSummary = [];
+    if (workoutsCompleted > 0) quickSummary.push(`${workoutsCompleted}/6 workouts`);
+    if (totalDaysLogged > 0) quickSummary.push(`${totalDaysLogged}/7 days tracked`);
+    
+    // Header
+    html += `<div class="history-week-header">
+        <div>
+            <div class="history-week-title">Week ${weekNum}</div>
+            ${quickSummary.length > 0 ? `<div class="history-week-dates">${quickSummary.join(' • ')}</div>` : ''}
         </div>
-    `).join('');
+    </div>`;
+    
+    // 1. WORKOUTS SECTION
+    html += '<div class="history-section">';
+    html += '<div class="history-section-title">💪 Workouts</div>';
+    html += '<div class="history-workouts">';
+    
+    for (let day = 1; day <= 6; day++) {
+        const workout = weekWorkouts.find(w => w.day === day);
+        const isDone = !!workout;
+        const hasDetails = workout && workout.exercises.some(e => e.kg || e.reps);
+        const clickHandler = hasDetails ? `onclick="toggleWorkoutDetails(${weekNum}, ${day})"` : '';
+        
+        html += `<div class="history-workout-badge ${isDone ? 'done' : ''}" ${clickHandler}>
+            <div class="day-num">${day}</div>
+            <div class="day-name">${names[day]?.split(' ')[0] || 'Day ' + day}</div>
+        </div>`;
+    }
+    
+    html += '</div>'; // close workouts grid
+    
+    // Expandable workout details
+    weekWorkouts.forEach(workout => {
+        const exercisesWithData = workout.exercises.filter(e => e.kg || e.reps);
+        if (exercisesWithData.length > 0) {
+            html += `<div class="history-workout-details" id="workout-details-${weekNum}-${workout.day}">
+                <div style="font-weight:bold;color:var(--primary);margin-bottom:6px;">Day ${workout.day}: ${names[workout.day]} — ${workout.date}</div>
+                ${exercisesWithData.slice(0, 8).map(e => 
+                    `<div class="history-workout-ex">${e.name}: <span>${e.kg || '—'}kg × ${e.reps || '—'}</span></div>`
+                ).join('')}
+                ${exercisesWithData.length > 8 ? `<div style="color:#666;font-size:10px;margin-top:4px;">+ ${exercisesWithData.length - 8} more exercises</div>` : ''}
+            </div>`;
+        }
+    });
+    
+    html += '</div>'; // close workouts section
+    
+    // 2. CALORIE SUMMARY SECTION
+    const days = [
+        {short: 'Fri', key: 'fri'},
+        {short: 'Sat', key: 'sat'},
+        {short: 'Sun', key: 'sun'},
+        {short: 'Mon', key: 'mon'},
+        {short: 'Tue', key: 'tue'},
+        {short: 'Wed', key: 'wed'},
+        {short: 'Thu', key: 'thu'}
+    ];
+    
+    let totalTarget = 0;
+    let totalActual = 0;
+    let daysLogged = 0;
+    
+    html += '<div class="history-section">';
+    html += '<div class="history-section-title">🍽️ Calories</div>';
+    
+    if (Object.keys(actualCals).length === 0) {
+        html += '<div style="text-align:center;padding:12px;color:#666;font-size:11px;">No calories logged this week</div>';
+    } else {
+        html += '<div class="history-cal-row history-cal-header">';
+        html += '<div>Day</div><div>Type</div><div>Target</div><div>Actual</div><div>+/-</div>';
+        html += '</div>';
+        
+        days.forEach(day => {
+            const calType = calTypes[day.key] || 'n';
+            const target = CAL_TYPE_PRESETS[calType].cal;
+            const actual = actualCals[day.key] || null;
+            const diff = actual ? actual - target : null;
+            
+            if (actual) {
+                totalTarget += target;
+                totalActual += actual;
+                daysLogged++;
+            }
+            
+            const typeLabel = calType === 'm' ? 'M' : calType === 'r' ? 'R' : 'N';
+            const actualDisplay = actual || '—';
+            const diffDisplay = diff !== null ? (diff > 0 ? '+' + diff : diff) : '—';
+            const diffColor = diff !== null ? (diff <= 0 ? 'color:var(--primary)' : 'color:var(--accent)') : '';
+            
+            html += `<div class="history-cal-row">
+                <div>${day.short}</div>
+                <div>${typeLabel}</div>
+                <div>${target}</div>
+                <div>${actualDisplay}</div>
+                <div style="${diffColor}">${diffDisplay}</div>
+            </div>`;
+        });
+        
+        const totalDiff = totalActual - totalTarget;
+    
+        if (daysLogged > 0) {
+            html += `<div class="history-cal-row total">
+                <div colspan="2">TOTAL</div>
+                <div></div>
+                <div>${totalTarget}</div>
+                <div>${totalActual}</div>
+                <div style="${totalDiff <= 0 ? 'color:var(--primary)' : 'color:var(--accent)'}">${totalDiff > 0 ? '+' : ''}${totalDiff}</div>
+            </div>`;
+        }
+    } // close else for calories section
+    
+    html += '</div>'; // close calories section
+    
+    // 3. WEIGHT & PROGRESS SECTION
+    html += '<div class="history-section">';
+    html += '<div class="history-section-title">⚖️ Weight & Progress</div>';
+    html += '<div class="history-stats">';
+    
+    if (weekWeights.length >= 2) {
+        const startWeight = weekWeights[weekWeights.length - 1].weight;
+        const endWeight = weekWeights[0].weight;
+        const actualChange = endWeight - startWeight;
+        
+        html += `<div class="history-stat">
+            <div class="history-stat-value">${startWeight.toFixed(1)} kg</div>
+            <div class="history-stat-label">Start Weight</div>
+        </div>`;
+        
+        html += `<div class="history-stat">
+            <div class="history-stat-value">${endWeight.toFixed(1)} kg</div>
+            <div class="history-stat-label">End Weight</div>
+        </div>`;
+        
+        html += `<div class="history-stat">
+            <div class="history-stat-value ${actualChange < 0 ? '' : 'negative'}">${actualChange > 0 ? '+' : ''}${actualChange.toFixed(2)} kg</div>
+            <div class="history-stat-label">Actual Change</div>
+        </div>`;
+        
+        // Calculate predicted change
+        if (totalTarget > 0) {
+            const weekDeficit = totalTarget - totalActual;
+            const predictedChange = -(weekDeficit / 7700);
+            const difference = actualChange - predictedChange;
+            
+            html += `<div class="history-stat">
+                <div class="history-stat-value">${predictedChange.toFixed(2)} kg</div>
+                <div class="history-stat-label">Predicted Change</div>
+            </div>`;
+            
+            html += `<div class="history-stat">
+                <div class="history-stat-value">${weekDeficit > 0 ? weekDeficit : 0}</div>
+                <div class="history-stat-label">Calorie Deficit</div>
+            </div>`;
+            
+            html += `<div class="history-stat">
+                <div class="history-stat-value ${Math.abs(difference) < 0.5 ? '' : 'negative'}">${difference > 0 ? '+' : ''}${difference.toFixed(2)} kg</div>
+                <div class="history-stat-label">Difference (Water)</div>
+            </div>`;
+        }
+    } else if (weekWeights.length === 1) {
+        html += `<div class="history-stat">
+            <div class="history-stat-value">${weekWeights[0].weight.toFixed(1)} kg</div>
+            <div class="history-stat-label">Weight Logged</div>
+        </div>`;
+        html += `<div class="history-stat">
+            <div class="history-stat-value">—</div>
+            <div class="history-stat-label">Need 2+ entries</div>
+        </div>`;
+    } else {
+        html += `<div class="history-stat">
+            <div class="history-stat-value">—</div>
+            <div class="history-stat-label">No Weight Data</div>
+        </div>`;
+    }
+    
+    html += '</div>'; // close stats grid
+    html += '</div>'; // close weight section
+    
+    html += '</div>'; // close week card
+    
+    el.innerHTML = html;
 }
 
 // Schedule management
@@ -2041,6 +2442,8 @@ function renderReportWorkoutLog() {
 // Init
 document.getElementById('weekNum').textContent = currentWeek;
 document.getElementById('reportWeekNum').textContent = currentWeek;
+document.getElementById('historyWeekNum').textContent = currentWeek;
+historyWeek = currentWeek;
 document.querySelectorAll('[data-dow]').forEach(row => {
     if (parseInt(row.dataset.dow) === new Date().getDay()) row.classList.add('today');
 });
@@ -2054,7 +2457,7 @@ renderCycle();
 renderWeightPredictor();
 
 // Initialize Fitbit on page load
-checkFitbitAuth();
+initFitbit();
 </script>
 </body>
 </html>
