@@ -71,6 +71,8 @@
         }
         .nav-btn.active { color: var(--primary); }
         .nav-btn .icon { font-size: 18px; font-weight: 700; display: block; margin-bottom: 2px; }
+        .nav-btn .icon svg { display: block; margin: 0 auto; }
+        .nav-btn .icon svg { width: 18px; height: 18px; }
         
         /* Pages */
         .page { display: none; padding: 16px; padding-bottom: 100px; }
@@ -445,6 +447,7 @@
             text-align: center; margin-bottom: 12px;
         }
         .cycle-phase-icon { font-size: 32px; margin-bottom: 4px; }
+        .cycle-phase-icon svg { display: block; margin: 0 auto; }
         .cycle-phase-name { 
             font-size: 16px; font-weight: bold; margin-bottom: 4px;
         }
@@ -472,6 +475,10 @@
         .phase-follicular { color: var(--primary); }
         .phase-ovulation { color: #FFD700; }
         .phase-luteal { color: #9B7FBF; }
+        
+        /* Inline SVG Icons */
+        .icon-inline { display: inline-block; width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+        .icon-inline svg { width: 100%; height: 100%; }
         
         /* Weight Predictor */
         .wp-stats { margin-bottom: 14px; }
@@ -551,7 +558,7 @@
 <body>
 
 <!-- PWA Version Badge -->
-<div class="pwa-badge">v2.4 PWA</div>
+<div class="pwa-badge">v2.6 PWA</div>
 
 <!-- Install Banner -->
 <div class="install-banner" id="installBanner">
@@ -623,12 +630,12 @@
     </div>
     
     <div class="card">
-        <h2>🔴 CYCLE</h2>
+        <h2 id="cycle-header"></h2>
         <div id="cycleContainer"></div>
     </div>
     
     <div class="card">
-        <h2>📉 WEIGHT PREDICTION</h2>
+        <h2 id="weight-prediction-header"></h2>
         <div id="weightPredictorContainer"></div>
     </div>
 </div>
@@ -661,35 +668,35 @@
     
     <div class="card">
         <div class="report-section">
-            <h3>📊 Weight Tracking</h3>
+            <h3 id="report-weight-tracking-header">Weight Tracking</h3>
             <div id="weightTrackingSection"></div>
         </div>
     </div>
     
     <div class="card">
         <div class="report-section">
-            <h3>🍽️ Calorie Summary</h3>
+            <h3 id="report-calorie-summary-header">Calorie Summary</h3>
             <div id="calorieSummarySection"></div>
         </div>
     </div>
     
     <div class="card">
         <div class="report-section">
-            <h3>📈 Projected Progress</h3>
+            <h3 id="report-projected-progress-header">Projected Progress</h3>
             <div id="projectedProgressSection"></div>
         </div>
     </div>
     
     <div class="card">
         <div class="report-section">
-            <h3>📅 Week-over-Week History</h3>
+            <h3 id="report-week-history-header">Week-over-Week History</h3>
             <div id="weekHistorySection"></div>
         </div>
     </div>
     
     <div class="card">
         <div class="report-section">
-            <h3>💪 Workout Log</h3>
+            <h3 id="report-workout-log-header">Workout Log</h3>
             <div id="reportWorkoutLog"></div>
         </div>
     </div>
@@ -713,15 +720,15 @@
 
 <!-- Bottom Navigation -->
 <nav class="nav">
-    <button class="nav-btn active" onclick="showPage('dashboard')"><span class="icon">⌂</span>Home</button>
+    <button class="nav-btn active" onclick="showPage('dashboard')"><span class="icon" id="nav-home-icon"></span>Home</button>
     <button class="nav-btn" onclick="showWorkout(1)"><span class="icon">1</span>Back</button>
     <button class="nav-btn" onclick="showWorkout(2)"><span class="icon">2</span>Legs</button>
     <button class="nav-btn" onclick="showWorkout(3)"><span class="icon">3</span>Shld</button>
     <button class="nav-btn" onclick="showWorkout(4)"><span class="icon">4</span>Glute</button>
     <button class="nav-btn" onclick="showWorkout(5)"><span class="icon">5</span>Arms</button>
     <button class="nav-btn" onclick="showWorkout(6)"><span class="icon">6</span>Sprnt</button>
-    <button class="nav-btn" onclick="showPage('report')"><span class="icon">📊</span>Report</button>
-    <button class="nav-btn" onclick="showPage('history')"><span class="icon">◷</span>Log</button>
+    <button class="nav-btn" onclick="showPage('report')"><span class="icon" id="nav-report-icon"></span>Report</button>
+    <button class="nav-btn" onclick="showPage('history')"><span class="icon" id="nav-log-icon"></span>Log</button>
 </nav>
 
 <script>
@@ -776,6 +783,33 @@ const FITBIT_ICONS = {
     sleep: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#5EEAD4" opacity="0.15"/></svg>',
     active: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'
 };
+
+// App-wide SVG icons (matching FITBIT_ICONS style)
+const APP_ICONS = {
+    cycle: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M16 8l-4 4-4-4M8 16l4-4 4 4"/></svg>',
+    trend: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    scale: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"/><path d="M9 4v13M15 7v13"/></svg>',
+    target: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+    drop: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+    home: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    period: '<svg viewBox="0 0 24 24" fill="#C94C7B" stroke="#C94C7B" stroke-width="1.5"><circle cx="12" cy="12" r="8"/></svg>',
+    leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+    egg: '<svg viewBox="0 0 24 24" fill="none" stroke="#DAA520" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="#DAA520"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="#7570B5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    workout: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4L9.6 9.6M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l1.767-1.768a2 2 0 1 1-2.829-2.828l7.071-7.071a2 2 0 1 1 2.829 2.828l1.767 1.768a2 2 0 1 1 2.828 2.829l-1.768 1.767a2 2 0 1 1 2.829 2.829l-1.767 1.768a2 2 0 1 1 2.828 2.828z"/></svg>',
+    food: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    // Cycle phase icons
+    phaseMenstruation: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#C94C7B"/></svg>',
+    phaseFollicular: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+    phaseOvulation: '<svg viewBox="0 0 24 24" fill="none" stroke="#DAA520" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="#DAA520"/></svg>',
+    phaseLuteal: '<svg viewBox="0 0 24 24" fill="none" stroke="#7570B5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+};
+    return `<span style="display:inline-block;width:${size}px;height:${size}px;vertical-align:middle;margin-right:6px;">${iconSvg}</span>`;
+}
 
 // PKCE Helper Functions
 function generateCodeVerifier() {
@@ -1042,7 +1076,7 @@ function handleFitbitError(error) {
                 Your Fitbit session has expired. Please reconnect.
             </div>
             <button class="fitbit-connect-btn" onclick="connectFitbit()">
-                <span>🔗</span> Reconnect Fitbit
+                <span style="display:inline-block;width:18px;height:18px;vertical-align:middle;margin-right:6px;">${APP_ICONS.link}</span>Reconnect Fitbit
             </button>
         `;
     } else {
@@ -1102,7 +1136,7 @@ function renderFitbitDisconnected() {
         </div>
         <div style="text-align:center;margin-top:8px;font-size:11px;color:#666;">⬆ Demo data — connect Fitbit for live stats</div>
         <button class="fitbit-connect-btn" onclick="connectFitbit()" style="margin-top:8px;">
-            <span>🔗</span> Connect Fitbit
+            <span style="display:inline-block;width:18px;height:18px;vertical-align:middle;margin-right:6px;">${APP_ICONS.link}</span>Connect Fitbit
         </button>
     `;
 }
@@ -1632,7 +1666,7 @@ function renderHistory() {
     
     // 1. WORKOUTS SECTION
     html += '<div class="history-section">';
-    html += '<div class="history-section-title">💪 Workouts</div>';
+    html += `<div class="history-section-title"><span class="icon-inline">${APP_ICONS.workout}</span>Workouts</div>`;
     html += '<div class="history-workouts">';
     
     for (let day = 1; day <= 6; day++) {
@@ -1681,7 +1715,7 @@ function renderHistory() {
     let daysLogged = 0;
     
     html += '<div class="history-section">';
-    html += '<div class="history-section-title">🍽️ Calories</div>';
+    html += `<div class="history-section-title"><span class="icon-inline">${APP_ICONS.food}</span>Calories</div>`;
     
     if (Object.keys(actualCals).length === 0) {
         html += '<div style="text-align:center;padding:12px;color:#666;font-size:11px;">No calories logged this week</div>';
@@ -1733,7 +1767,7 @@ function renderHistory() {
     
     // 3. WEIGHT & PROGRESS SECTION
     html += '<div class="history-section">';
-    html += '<div class="history-section-title">⚖️ Weight & Progress</div>';
+    html += `<div class="history-section-title"><span class="icon-inline">${APP_ICONS.scale}</span>Weight & Progress</div>`;
     html += '<div class="history-stats">';
     
     if (weekWeights.length >= 2) {
@@ -1927,20 +1961,16 @@ function getCycleInfo() {
     
     // Determine phase
     let phase = 'luteal';
-    let phaseEmoji = '🌙';
     let phaseColor = 'phase-luteal';
     
     if (dayOfCycle <= 5) {
         phase = 'menstruation';
-        phaseEmoji = '🔴';
         phaseColor = 'phase-menstruation';
     } else if (dayOfCycle <= 13) {
         phase = 'follicular';
-        phaseEmoji = '🌱';
         phaseColor = 'phase-follicular';
     } else if (dayOfCycle <= 16) {
         phase = 'ovulation';
-        phaseEmoji = '🥚';
         phaseColor = 'phase-ovulation';
     }
     
@@ -1951,7 +1981,6 @@ function getCycleInfo() {
     
     return { 
         phase, 
-        phaseEmoji, 
         phaseColor, 
         dayOfCycle, 
         avgLength, 
@@ -1978,7 +2007,10 @@ function renderCycle() {
     
     if (dates.length === 0) {
         container.innerHTML = `
-            <button class="cycle-btn-main" onclick="logPeriodStart()">🔴 Period Started</button>
+            <button class="cycle-btn-main" onclick="logPeriodStart()">
+                <span style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:6px;">${APP_ICONS.period}</span>
+                Period Started
+            </button>
             <div class="wp-empty">Log your first period to start tracking</div>
         `;
         return;
@@ -1986,6 +2018,12 @@ function renderCycle() {
     
     const info = getCycleInfo();
     const phaseName = info.phase.charAt(0).toUpperCase() + info.phase.slice(1);
+    
+    // Get phase-specific icon
+    let phaseIcon = APP_ICONS.phaseMenstruation;
+    if (info.phase === 'follicular') phaseIcon = APP_ICONS.phaseFollicular;
+    else if (info.phase === 'ovulation') phaseIcon = APP_ICONS.phaseOvulation;
+    else if (info.phase === 'luteal') phaseIcon = APP_ICONS.phaseLuteal;
     
     let warningHtml = '';
     if (info.phase === 'luteal') {
@@ -1998,9 +2036,12 @@ function renderCycle() {
     }).join('');
     
     container.innerHTML = `
-        <button class="cycle-btn-main" onclick="logPeriodStart()">🔴 Period Started</button>
+        <button class="cycle-btn-main" onclick="logPeriodStart()">
+            <span style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:6px;">${APP_ICONS.period}</span>
+            Period Started
+        </button>
         <div class="cycle-phase">
-            <div class="cycle-phase-icon">${info.phaseEmoji}</div>
+            <div class="cycle-phase-icon" style="width:32px;height:32px;margin:0 auto;">${phaseIcon}</div>
             <div class="cycle-phase-name ${info.phaseColor}">${phaseName}</div>
             <div class="cycle-phase-day">Cycle Day ${info.dayOfCycle} of ~${info.avgLength}</div>
             <div class="cycle-phase-next">Next period in ~${info.daysToNext} days</div>
@@ -2134,27 +2175,27 @@ function renderWeightPredictor() {
     container.innerHTML = `
         <div class="wp-stats">
             <div class="wp-stat">
-                <span class="wp-stat-label">⚖️ Last logged weight:</span>
+                <span class="wp-stat-label"><span class="icon-inline">${APP_ICONS.scale}</span>Last logged weight:</span>
                 <span class="wp-stat-value">${lastWeight.toFixed(1)} kg</span>
             </div>
             <div class="wp-stat">
-                <span class="wp-stat-label">📉 True trend:</span>
+                <span class="wp-stat-label"><span class="icon-inline">${APP_ICONS.trend}</span>True trend:</span>
                 <span class="wp-stat-value">${trueTrendWeight.toFixed(1)} kg</span>
             </div>
             <div class="wp-stat">
-                <span class="wp-stat-label">🎯 Target:</span>
+                <span class="wp-stat-label"><span class="icon-inline">${APP_ICONS.target}</span>Target:</span>
                 <span class="wp-stat-value">62-64 kg</span>
             </div>
             <div class="wp-stat">
-                <span class="wp-stat-label">📅 Predicted to reach target:</span>
+                <span class="wp-stat-label"><span class="icon-inline">${APP_ICONS.calendar}</span>Predicted to reach target:</span>
                 <span class="wp-stat-value">${predictedDate}</span>
             </div>
             <div class="wp-stat">
-                <span class="wp-stat-label">🔥 Avg weekly deficit:</span>
+                <span class="wp-stat-label"><span class="icon-inline">${FITBIT_ICONS.calories}</span>Avg weekly deficit:</span>
                 <span class="wp-stat-value">${avgWeeklyDeficit.toLocaleString()} kcal</span>
             </div>
             <div class="wp-stat">
-                <span class="wp-stat-label">💧 Cycle adjustment:</span>
+                <span class="wp-stat-label"><span class="icon-inline">${APP_ICONS.drop}</span>Cycle adjustment:</span>
                 <span class="wp-stat-value accent">${waterRetention > 0 ? '+' : ''}${waterRetention.toFixed(1)} kg</span>
             </div>
         </div>
@@ -2217,7 +2258,7 @@ function renderWeightTracking() {
         const phaseName = cycleInfo.phase.charAt(0).toUpperCase() + cycleInfo.phase.slice(1);
         const waterRetention = getWaterRetention(cycleInfo.phase);
         cycleContext = `<div class="wp-stat">
-            <span class="wp-stat-label">🔴 Cycle phase:</span>
+            <span class="wp-stat-label"><span class="icon-inline">${APP_ICONS.cycle}</span>Cycle phase:</span>
             <span class="wp-stat-value">${phaseName} (${waterRetention > 0 ? '+' : ''}${waterRetention.toFixed(1)} kg water)</span>
         </div>`;
     }
@@ -2503,6 +2544,7 @@ historyWeek = currentWeek;
 document.querySelectorAll('[data-dow]').forEach(row => {
     if (parseInt(row.dataset.dow) === new Date().getDay()) row.classList.add('today');
 });
+
 renderWeightLog();
 renderWorkoutLog();
 updateWorkoutButtons();
