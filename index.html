@@ -194,7 +194,8 @@
             background: var(--dark); border-radius: 8px; padding: 12px;
             text-align: center;
         }
-        .fitbit-stat-icon { font-size: 24px; margin-bottom: 4px; }
+        .fitbit-stat-icon { margin-bottom: 4px; }
+        .fitbit-stat-icon svg { width: 22px; height: 22px; }
         .fitbit-stat-value { 
             color: var(--primary); font-size: 20px; font-weight: bold;
             margin-bottom: 2px;
@@ -767,6 +768,15 @@ const FITBIT_CONFIG = {
     scope: 'activity heartrate sleep weight profile'
 };
 
+// Sleek SVG icons for Fitbit stats
+const FITBIT_ICONS = {
+    steps: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c1.5-3 3-5 5-5s3.5 2 5 2 3.5-2 5-5"/><circle cx="4" cy="18" r="1.5" fill="#5EEAD4" stroke="none"/><circle cx="14" cy="15" r="1.5" fill="#5EEAD4" stroke="none"/><circle cx="9" cy="13" r="1.5" fill="#5EEAD4" stroke="none"/><circle cx="19" cy="10" r="1.5" fill="#5EEAD4" stroke="none"/></svg>',
+    calories: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4 0-7-3-7-7.5C5 10 12 2 12 2s7 8 7 12.5c0 4.5-3 7.5-7 7.5z"/><path d="M12 22c-1.5 0-3-1.2-3-3.5 0-2.5 3-6.5 3-6.5s3 4 3 6.5c0 2.3-1.5 3.5-3 3.5z" fill="#5EEAD4" opacity="0.3"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="#C94C7B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    sleep: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#5EEAD4" opacity="0.15"/></svg>',
+    active: '<svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'
+};
+
 // PKCE Helper Functions
 function generateCodeVerifier() {
     const array = new Uint8Array(32);
@@ -1065,27 +1075,27 @@ function renderFitbitDisconnected() {
     container.innerHTML = `
         <div class="fitbit-stats" style="opacity:0.45;">
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">👣</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.steps}</div>
                 <div class="fitbit-stat-value">${demoData.steps.toLocaleString()}</div>
                 <div class="fitbit-stat-label">Steps</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">🔥</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.calories}</div>
                 <div class="fitbit-stat-value">${demoData.calories.toLocaleString()}</div>
                 <div class="fitbit-stat-label">Calories</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">❤️</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.heart}</div>
                 <div class="fitbit-stat-value">${demoData.heartRate}</div>
                 <div class="fitbit-stat-label">Resting HR</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">😴</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.sleep}</div>
                 <div class="fitbit-stat-value">${sleepHours}h ${sleepMins}m</div>
                 <div class="fitbit-stat-label">Sleep</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">🏃‍♀️</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.active}</div>
                 <div class="fitbit-stat-value">${demoData.activeMinutes}</div>
                 <div class="fitbit-stat-label">Active Min</div>
             </div>
@@ -1116,27 +1126,27 @@ function renderFitbitConnected(data) {
     container.innerHTML = `
         <div class="fitbit-stats">
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">👣</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.steps}</div>
                 <div class="fitbit-stat-value">${(data.steps || 0).toLocaleString()}</div>
                 <div class="fitbit-stat-label">Steps</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">🔥</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.calories}</div>
                 <div class="fitbit-stat-value">${(data.calories || 0).toLocaleString()}</div>
                 <div class="fitbit-stat-label">Calories</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">❤️</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.heart}</div>
                 <div class="fitbit-stat-value">${data.heartRate || '—'}</div>
                 <div class="fitbit-stat-label">Resting HR</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">😴</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.sleep}</div>
                 <div class="fitbit-stat-value">${sleepDisplay}</div>
                 <div class="fitbit-stat-label">Sleep</div>
             </div>
             <div class="fitbit-stat">
-                <div class="fitbit-stat-icon">🏃‍♀️</div>
+                <div class="fitbit-stat-icon">${FITBIT_ICONS.active}</div>
                 <div class="fitbit-stat-value">${data.activeMinutes || 0}</div>
                 <div class="fitbit-stat-label">Active Min</div>
             </div>
