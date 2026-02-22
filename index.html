@@ -1051,8 +1051,46 @@ function handleFitbitError(error) {
 // Render disconnected state
 function renderFitbitDisconnected() {
     const container = document.getElementById('fitbitContainer');
+    // Show demo data with connect button
+    const demoData = {
+        steps: 6842,
+        calories: 1547,
+        heartRate: 62,
+        sleep: 438,
+        activeMinutes: 34
+    };
+    const sleepHours = Math.floor(demoData.sleep / 60);
+    const sleepMins = demoData.sleep % 60;
     container.innerHTML = `
-        <button class="fitbit-connect-btn" onclick="connectFitbit()">
+        <div class="fitbit-stats" style="opacity:0.45;">
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">👣</div>
+                <div class="fitbit-stat-value">${demoData.steps.toLocaleString()}</div>
+                <div class="fitbit-stat-label">Steps</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">🔥</div>
+                <div class="fitbit-stat-value">${demoData.calories.toLocaleString()}</div>
+                <div class="fitbit-stat-label">Calories</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">❤️</div>
+                <div class="fitbit-stat-value">${demoData.heartRate}</div>
+                <div class="fitbit-stat-label">Resting HR</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">😴</div>
+                <div class="fitbit-stat-value">${sleepHours}h ${sleepMins}m</div>
+                <div class="fitbit-stat-label">Sleep</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">🏃‍♀️</div>
+                <div class="fitbit-stat-value">${demoData.activeMinutes}</div>
+                <div class="fitbit-stat-label">Active Min</div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-size:11px;color:#666;">⬆ Demo data — connect Fitbit for live stats</div>
+        <button class="fitbit-connect-btn" onclick="connectFitbit()" style="margin-top:8px;">
             <span>🔗</span> Connect Fitbit
         </button>
     `;
