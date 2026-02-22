@@ -309,12 +309,79 @@
         .history-day { color: #888; font-size: 12px; }
         .history-ex { font-size: 12px; color: #aaa; padding: 4px 0; }
         .history-ex span { color: var(--accent); }
+        
+        /* Cycle Tracker */
+        .cycle-btn-main {
+            width: 100%; padding: 16px; background: var(--accent); color: white;
+            border: none; border-radius: 10px; font-weight: 600; font-size: 14px;
+            cursor: pointer; letter-spacing: 1.5px; margin-bottom: 12px;
+        }
+        .cycle-btn-main:active { opacity: 0.8; }
+        .cycle-phase {
+            background: var(--dark); border-radius: 8px; padding: 12px;
+            text-align: center; margin-bottom: 12px;
+        }
+        .cycle-phase-icon { font-size: 32px; margin-bottom: 4px; }
+        .cycle-phase-name { 
+            font-size: 16px; font-weight: bold; margin-bottom: 4px;
+        }
+        .cycle-phase-day { color: #888; font-size: 12px; margin-bottom: 8px; }
+        .cycle-phase-next { color: var(--primary); font-size: 13px; font-weight: 600; }
+        .cycle-warning {
+            background: rgba(201, 76, 123, 0.15); border: 1px solid var(--accent);
+            border-radius: 8px; padding: 10px; text-align: center; color: var(--accent);
+            font-size: 12px; margin-bottom: 12px;
+        }
+        .cycle-history {
+            font-size: 11px; color: #888; padding: 8px 0;
+            border-top: 1px solid var(--border); margin-top: 8px;
+        }
+        .cycle-history div { padding: 4px 0; }
+        .cycle-undo {
+            width: 100%; padding: 8px; background: transparent; color: #666;
+            border: 1px solid #444; border-radius: 8px; font-weight: 600;
+            font-size: 11px; cursor: pointer; letter-spacing: 1px;
+        }
+        .cycle-undo:active { opacity: 0.7; }
+        
+        /* Phase Colors */
+        .phase-menstruation { color: var(--accent); }
+        .phase-follicular { color: var(--primary); }
+        .phase-ovulation { color: #FFD700; }
+        .phase-luteal { color: #9B7FBF; }
+        
+        /* Weight Predictor */
+        .wp-stats { margin-bottom: 14px; }
+        .wp-stat {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .wp-stat:last-child { border-bottom: none; }
+        .wp-stat-label { color: #aaa; }
+        .wp-stat-value { font-weight: bold; color: var(--primary); }
+        .wp-stat-value.accent { color: var(--accent); }
+        .wp-progress {
+            background: var(--dark); border-radius: 8px; height: 24px;
+            position: relative; overflow: hidden; margin-top: 12px;
+        }
+        .wp-progress-bar {
+            height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 8px; transition: width 0.3s ease;
+        }
+        .wp-progress-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 11px; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .wp-empty {
+            text-align: center; padding: 20px; color: #666; font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
 <!-- PWA Version Badge -->
-<div class="pwa-badge">v2.1 PWA</div>
+<div class="pwa-badge">v2.2 PWA</div>
 
 <!-- Install Banner -->
 <div class="install-banner" id="installBanner">
@@ -329,11 +396,6 @@
 <!-- Dashboard Page -->
 <div class="page active" id="page-dashboard">
     <h1>SABRINA'S FITNESS</h1>
-    
-    <div class="card">
-        <h2>FITBIT</h2>
-        <div id="fitbitContainer"></div>
-    </div>
     
     <div class="week-tracker">
         <button class="week-btn" onclick="changeWeek(-1)">−</button>
@@ -385,6 +447,20 @@
         <div class="log-list" id="workoutLog"></div>
     </div>
     
+    <div class="card">
+        <h2>FITBIT</h2>
+        <div id="fitbitContainer"></div>
+    </div>
+    
+    <div class="card">
+        <h2>🔴 CYCLE</h2>
+        <div id="cycleContainer"></div>
+    </div>
+    
+    <div class="card">
+        <h2>📉 WEIGHT PREDICTION</h2>
+        <div id="weightPredictorContainer"></div>
+    </div>
 </div>
 
 <!-- Workout Page -->
@@ -965,6 +1041,7 @@ function logWeight() {
     localStorage.setItem('weightLogs', JSON.stringify(logs.slice(0,100)));
     input.value = '';
     renderWeightLog();
+    renderWeightPredictor(); // Update predictor when weight logged
 }
 
 function renderWeightLog() {
@@ -1076,6 +1153,314 @@ function loadCalories() {
     });
 }
 
+// ===============================
+// PERIOD TRACKER
+// ===============================
+
+function getPeriodDates() {
+    return JSON.parse(localStorage.getItem('periodDates') || '[]');
+}
+
+function savePeriodDates(dates) {
+    localStorage.setItem('periodDates', JSON.stringify(dates));
+}
+
+function logPeriodStart() {
+    const today = new Date().toISOString().split('T')[0];
+    const dates = getPeriodDates();
+    
+    // Check if already logged today
+    if (dates[0] === today) {
+        alert('Period already logged for today!');
+        return;
+    }
+    
+    dates.unshift(today);
+    savePeriodDates(dates.slice(0, 12)); // Keep last 12 entries
+    renderCycle();
+    renderWeightPredictor(); // Update predictor when period logged
+}
+
+function undoLastPeriod() {
+    if (!confirm('Remove last period entry?')) return;
+    const dates = getPeriodDates();
+    dates.shift();
+    savePeriodDates(dates);
+    renderCycle();
+    renderWeightPredictor();
+}
+
+function getCycleInfo() {
+    const dates = getPeriodDates();
+    if (dates.length === 0) {
+        return { phase: null, dayOfCycle: 0, avgLength: 28, nextPeriod: null };
+    }
+    
+    const lastPeriod = new Date(dates[0]);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    lastPeriod.setHours(0, 0, 0, 0);
+    
+    const daysSinceLastPeriod = Math.floor((today - lastPeriod) / (1000 * 60 * 60 * 24));
+    const dayOfCycle = daysSinceLastPeriod + 1;
+    
+    // Calculate average cycle length from last 3-6 cycles
+    let avgLength = 28;
+    if (dates.length >= 2) {
+        const cycles = [];
+        for (let i = 0; i < Math.min(dates.length - 1, 6); i++) {
+            const d1 = new Date(dates[i]);
+            const d2 = new Date(dates[i + 1]);
+            const diff = Math.floor((d1 - d2) / (1000 * 60 * 60 * 24));
+            if (diff > 20 && diff < 40) cycles.push(diff);
+        }
+        if (cycles.length > 0) {
+            avgLength = Math.round(cycles.reduce((a, b) => a + b, 0) / cycles.length);
+        }
+    }
+    
+    // Determine phase
+    let phase = 'luteal';
+    let phaseEmoji = '🌙';
+    let phaseColor = 'phase-luteal';
+    
+    if (dayOfCycle <= 5) {
+        phase = 'menstruation';
+        phaseEmoji = '🔴';
+        phaseColor = 'phase-menstruation';
+    } else if (dayOfCycle <= 13) {
+        phase = 'follicular';
+        phaseEmoji = '🌱';
+        phaseColor = 'phase-follicular';
+    } else if (dayOfCycle <= 16) {
+        phase = 'ovulation';
+        phaseEmoji = '🥚';
+        phaseColor = 'phase-ovulation';
+    }
+    
+    // Calculate next period
+    const nextPeriod = new Date(lastPeriod);
+    nextPeriod.setDate(nextPeriod.getDate() + avgLength);
+    const daysToNext = Math.floor((nextPeriod - today) / (1000 * 60 * 60 * 24));
+    
+    return { 
+        phase, 
+        phaseEmoji, 
+        phaseColor, 
+        dayOfCycle, 
+        avgLength, 
+        nextPeriod, 
+        daysToNext,
+        lastPeriodDate: dates[0]
+    };
+}
+
+function getWaterRetention(phase) {
+    // Water retention by cycle phase (in kg)
+    const retention = {
+        menstruation: -0.25,
+        follicular: 0,
+        ovulation: 0.5,
+        luteal: 1.75
+    };
+    return retention[phase] || 0;
+}
+
+function renderCycle() {
+    const container = document.getElementById('cycleContainer');
+    const dates = getPeriodDates();
+    
+    if (dates.length === 0) {
+        container.innerHTML = `
+            <button class="cycle-btn-main" onclick="logPeriodStart()">🔴 Period Started</button>
+            <div class="wp-empty">Log your first period to start tracking</div>
+        `;
+        return;
+    }
+    
+    const info = getCycleInfo();
+    const phaseName = info.phase.charAt(0).toUpperCase() + info.phase.slice(1);
+    
+    let warningHtml = '';
+    if (info.phase === 'luteal') {
+        warningHtml = `<div class="cycle-warning">⚠️ Expect +1-2 kg water weight</div>`;
+    }
+    
+    const historyHtml = dates.slice(0, 3).map(d => {
+        const date = new Date(d);
+        return `<div>${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>`;
+    }).join('');
+    
+    container.innerHTML = `
+        <button class="cycle-btn-main" onclick="logPeriodStart()">🔴 Period Started</button>
+        <div class="cycle-phase">
+            <div class="cycle-phase-icon">${info.phaseEmoji}</div>
+            <div class="cycle-phase-name ${info.phaseColor}">${phaseName}</div>
+            <div class="cycle-phase-day">Cycle Day ${info.dayOfCycle} of ~${info.avgLength}</div>
+            <div class="cycle-phase-next">Next period in ~${info.daysToNext} days</div>
+        </div>
+        ${warningHtml}
+        ${dates.length > 0 ? `
+            <div class="cycle-history">
+                <strong>Recent periods:</strong>
+                ${historyHtml}
+            </div>
+            <button class="cycle-undo" onclick="undoLastPeriod()">Undo Last</button>
+        ` : ''}
+    `;
+}
+
+// ===============================
+// WEIGHT PREDICTOR
+// ===============================
+
+function calculateCumulativeDeficit() {
+    let totalDeficit = 0;
+    
+    // Get all calorie data from all weeks
+    for (let week = 1; week <= currentWeek; week++) {
+        const caloriesKey = `calories_week_${week}`;
+        const scheduleKey = `schedule_week_${week}`;
+        
+        const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+        const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '{}');
+        
+        const days = ['fri', 'sat', 'sun', 'mon', 'tue', 'wed', 'thu'];
+        
+        days.forEach(day => {
+            const actual = actualCals[day];
+            if (!actual) return; // Skip days without logged calories
+            
+            // Get target from schedule
+            const workoutValue = schedule[day] || 'rest';
+            const workout = WORKOUT_OPTIONS.find(opt => opt.value === workoutValue);
+            const target = workout ? workout.cal : 1300;
+            
+            totalDeficit += (target - actual);
+        });
+    }
+    
+    return totalDeficit;
+}
+
+function getRecentWeeklyDeficit() {
+    const weekDeficits = [];
+    
+    // Calculate last 4 weeks
+    for (let week = Math.max(1, currentWeek - 3); week <= currentWeek; week++) {
+        const caloriesKey = `calories_week_${week}`;
+        const scheduleKey = `schedule_week_${week}`;
+        
+        const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+        const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '{}');
+        
+        let weekDeficit = 0;
+        let daysLogged = 0;
+        const days = ['fri', 'sat', 'sun', 'mon', 'tue', 'wed', 'thu'];
+        
+        days.forEach(day => {
+            const actual = actualCals[day];
+            if (!actual) return;
+            
+            const workoutValue = schedule[day] || 'rest';
+            const workout = WORKOUT_OPTIONS.find(opt => opt.value === workoutValue);
+            const target = workout ? workout.cal : 1300;
+            
+            weekDeficit += (target - actual);
+            daysLogged++;
+        });
+        
+        if (daysLogged > 0) {
+            weekDeficits.push(weekDeficit);
+        }
+    }
+    
+    if (weekDeficits.length === 0) return 0;
+    return Math.round(weekDeficits.reduce((a, b) => a + b, 0) / weekDeficits.length);
+}
+
+function renderWeightPredictor() {
+    const container = document.getElementById('weightPredictorContainer');
+    const weightLogs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+    
+    if (weightLogs.length === 0) {
+        container.innerHTML = `<div class="wp-empty">Log your weight to see predictions</div>`;
+        return;
+    }
+    
+    // Get latest weight
+    const lastWeight = weightLogs[0].weight;
+    const startWeight = weightLogs[weightLogs.length - 1]?.weight || 67.4;
+    
+    // Get cycle info for water retention
+    const cycleInfo = getCycleInfo();
+    const waterRetention = cycleInfo.phase ? getWaterRetention(cycleInfo.phase) : 0;
+    const trueTrendWeight = lastWeight - waterRetention;
+    
+    // Calculate fat loss from deficit
+    const cumulativeDeficit = calculateCumulativeDeficit();
+    const fatLost = cumulativeDeficit / 7700; // kg
+    
+    // Weekly deficit average
+    const avgWeeklyDeficit = getRecentWeeklyDeficit();
+    
+    // Target weight
+    const targetWeight = 63;
+    const weightToLose = trueTrendWeight - targetWeight;
+    
+    // Predict date to reach target
+    let predictedDate = 'N/A';
+    if (avgWeeklyDeficit > 0 && weightToLose > 0) {
+        const caloriesNeeded = weightToLose * 7700;
+        const weeksNeeded = caloriesNeeded / avgWeeklyDeficit;
+        const daysNeeded = Math.round(weeksNeeded * 7);
+        
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + daysNeeded);
+        predictedDate = futureDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } else if (weightToLose <= 0) {
+        predictedDate = 'Target reached! 🎉';
+    } else {
+        predictedDate = 'Need more data';
+    }
+    
+    // Progress bar
+    const progressPercent = Math.max(0, Math.min(100, ((startWeight - trueTrendWeight) / (startWeight - targetWeight)) * 100));
+    
+    container.innerHTML = `
+        <div class="wp-stats">
+            <div class="wp-stat">
+                <span class="wp-stat-label">⚖️ Last logged weight:</span>
+                <span class="wp-stat-value">${lastWeight.toFixed(1)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">📉 True trend:</span>
+                <span class="wp-stat-value">${trueTrendWeight.toFixed(1)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">🎯 Target:</span>
+                <span class="wp-stat-value">62-64 kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">📅 Predicted to reach target:</span>
+                <span class="wp-stat-value">${predictedDate}</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">🔥 Avg weekly deficit:</span>
+                <span class="wp-stat-value">${avgWeeklyDeficit.toLocaleString()} kcal</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">💧 Cycle adjustment:</span>
+                <span class="wp-stat-value accent">${waterRetention > 0 ? '+' : ''}${waterRetention.toFixed(1)} kg</span>
+            </div>
+        </div>
+        <div class="wp-progress">
+            <div class="wp-progress-bar" style="width: ${progressPercent}%"></div>
+            <div class="wp-progress-text">${progressPercent.toFixed(0)}% to target</div>
+        </div>
+    `;
+}
+
 // Init
 document.getElementById('weekNum').textContent = currentWeek;
 document.querySelectorAll('[data-dow]').forEach(row => {
@@ -1086,6 +1471,8 @@ renderWorkoutLog();
 updateWorkoutButtons();
 loadCalories();
 initScheduleDropdowns();
+renderCycle();
+renderWeightPredictor();
 
 // Initialize Fitbit on page load
 checkFitbitAuth();
