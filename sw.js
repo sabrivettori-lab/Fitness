@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sabrina-fitness-v2.4';
+const CACHE_NAME = 'sabrina-fitness-v2.6';
 const urlsToCache = [
   './',
   './index.html',
