@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1a1a2e"/>
+  <circle cx="256" cy="256" r="200" fill="#5EEAD4" opacity="0.1"/>
+  <!-- Dumbbell design -->
+  <g fill="#5EEAD4">
+    <!-- Left weight -->
+    <rect x="80" y="220" width="60" height="72" rx="8"/>
+    <rect x="100" y="210" width="20" height="92" rx="4"/>
+    <!-- Center bar -->
+    <rect x="140" y="244" width="232" height="24" rx="12"/>
+    <!-- Right weight -->
+    <rect x="372" y="220" width="60" height="72" rx="8"/>
+    <rect x="392" y="210" width="20" height="92" rx="4"/>
+  </g>
+  <!-- Letter S overlay -->
+  <text x="256" y="330" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#C94C7B" text-anchor="middle" opacity="0.3">S</text>
+</svg>
