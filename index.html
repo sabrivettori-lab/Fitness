@@ -206,14 +206,14 @@
             display: flex; gap: 8px; margin-top: 10px;
         }
         .fitbit-refresh-btn {
-            flex: 1; padding: 10px; background: var(--accent); color: white;
-            border: none; border-radius: 8px; font-weight: 600; font-size: 11px;
-            cursor: pointer; letter-spacing: 1px;
+            padding: 6px 12px; background: transparent; color: #555;
+            border: 1px solid #333; border-radius: 6px; font-size: 10px;
+            cursor: pointer;
         }
         .fitbit-disconnect-btn {
-            padding: 10px 16px; background: transparent; color: #666;
-            border: 1px solid #444; border-radius: 8px; font-weight: 600;
-            font-size: 11px; cursor: pointer; letter-spacing: 1px;
+            padding: 6px 12px; background: transparent; color: #444;
+            border: 1px solid #333; border-radius: 6px;
+            font-size: 10px; cursor: pointer;
         }
         .fitbit-refresh-btn:active, .fitbit-disconnect-btn:active { opacity: 0.7; }
         
@@ -2514,6 +2514,25 @@ renderWeightPredictor();
 
 // Initialize Fitbit on page load
 initFitbit();
+
+// Auto-refresh Fitbit when app becomes visible (switching back from another app)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && localStorage.getItem('fitbit_token')) {
+        const lastRefresh = localStorage.getItem('fitbit_last_refresh');
+        const fiveMinAgo = Date.now() - (5 * 60 * 1000);
+        // Only refresh if last fetch was more than 5 minutes ago
+        if (!lastRefresh || new Date(lastRefresh).getTime() < fiveMinAgo) {
+            fetchFitbitData();
+        }
+    }
+});
+
+// Auto-refresh Fitbit every 15 minutes while app is open
+setInterval(() => {
+    if (document.visibilityState === 'visible' && localStorage.getItem('fitbit_token')) {
+        fetchFitbitData();
+    }
+}, 15 * 60 * 1000);
 </script>
 </body>
 </html>
