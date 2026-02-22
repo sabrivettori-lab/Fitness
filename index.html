@@ -116,6 +116,21 @@
             cursor: pointer;
         }
         .workout-select:focus { border-color: var(--primary); outline: none; }
+        
+        /* Calorie Type Selector */
+        .cal-type-selector {
+            display: flex; gap: 3px; margin-bottom: 4px;
+        }
+        .cal-type-btn {
+            flex: 1; padding: 4px 2px; border-radius: 4px; border: 1px solid var(--border);
+            background: var(--dark); color: #666; font-size: 10px; font-weight: 600;
+            cursor: pointer; text-align: center; letter-spacing: 0.5px;
+        }
+        .cal-type-btn:active { opacity: 0.7; }
+        .cal-type-btn.active-m { background: var(--primary); color: white; border-color: var(--primary); }
+        .cal-type-btn.active-n { background: #555; color: white; border-color: #555; }
+        .cal-type-btn.active-r { background: var(--accent); color: white; border-color: var(--accent); }
+        
         .workout-note {
             background: var(--card); border-left: 3px solid var(--primary);
             padding: 10px 12px; margin-bottom: 14px; border-radius: 0 8px 8px 0;
@@ -376,12 +391,59 @@
         .wp-empty {
             text-align: center; padding: 20px; color: #666; font-size: 12px;
         }
+        
+        /* Weekly Report Styles */
+        .report-section {
+            margin-bottom: 20px;
+        }
+        .report-section h3 {
+            color: var(--primary); font-size: 14px; margin-bottom: 12px;
+            letter-spacing: 1px; font-weight: 600;
+        }
+        .report-table {
+            width: 100%; border-collapse: collapse; font-size: 12px;
+        }
+        .report-table th, .report-table td {
+            padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--border);
+        }
+        .report-table th {
+            color: var(--accent); font-size: 10px; text-transform: uppercase;
+        }
+        .report-table .total-row {
+            background: rgba(94, 234, 212, 0.1);
+            font-weight: bold;
+        }
+        .report-summary {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-bottom: 12px;
+        }
+        .report-stat {
+            background: var(--dark); border-radius: 8px; padding: 10px;
+            text-align: center;
+        }
+        .report-stat-value {
+            font-size: 18px; font-weight: bold; color: var(--primary);
+            margin-bottom: 2px;
+        }
+        .report-stat-value.negative { color: var(--accent); }
+        .report-stat-label {
+            font-size: 10px; color: #888; text-transform: uppercase;
+        }
+        .week-history-table {
+            width: 100%; border-collapse: collapse; font-size: 11px;
+        }
+        .week-history-table th, .week-history-table td {
+            padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border);
+        }
+        .week-history-table th {
+            color: var(--accent); font-size: 9px; text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
 <!-- PWA Version Badge -->
-<div class="pwa-badge">v2.2 PWA</div>
+<div class="pwa-badge">v2.3 PWA</div>
 
 <!-- Install Banner -->
 <div class="install-banner" id="installBanner">
@@ -409,14 +471,84 @@
     <div class="card">
         <h2>THIS WEEK</h2>
         <table class="schedule-table">
-            <tr><th>Day</th><th>Workout</th><th>Target</th><th>Actual</th></tr>
-            <tr data-dow="5"><td>Fri</td><td><select class="workout-select" data-day="fri"></select></td><td class="cal-target" data-day="fri">1800</td><td><input type="number" class="cal-input" data-day="fri" placeholder="—"></td></tr>
-            <tr data-dow="6"><td>Sat</td><td><select class="workout-select" data-day="sat"></select></td><td class="cal-target" data-day="sat">1300</td><td><input type="number" class="cal-input" data-day="sat" placeholder="—"></td></tr>
-            <tr data-dow="0"><td>Sun</td><td><select class="workout-select" data-day="sun"></select></td><td class="cal-target" data-day="sun">1300</td><td><input type="number" class="cal-input" data-day="sun" placeholder="—"></td></tr>
-            <tr data-dow="1"><td>Mon</td><td><select class="workout-select" data-day="mon"></select></td><td class="cal-target" data-day="mon">850</td><td><input type="number" class="cal-input" data-day="mon" placeholder="—"></td></tr>
-            <tr data-dow="2"><td>Tue</td><td><select class="workout-select" data-day="tue"></select></td><td class="cal-target" data-day="tue">1300</td><td><input type="number" class="cal-input" data-day="tue" placeholder="—"></td></tr>
-            <tr data-dow="3"><td>Wed</td><td><select class="workout-select" data-day="wed"></select></td><td class="cal-target" data-day="wed">850</td><td><input type="number" class="cal-input" data-day="wed" placeholder="—"></td></tr>
-            <tr data-dow="4"><td>Thu</td><td><select class="workout-select" data-day="thu"></select></td><td class="cal-target" data-day="thu">1300</td><td><input type="number" class="cal-input" data-day="thu" placeholder="—"></td></tr>
+            <tr><th>Day</th><th>Type</th><th>Workout</th><th>Target</th><th>Actual</th></tr>
+            <tr data-dow="5">
+                <td>Fri</td>
+                <td><div class="cal-type-selector" data-day="fri">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('fri', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('fri', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('fri', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="fri"></select></td>
+                <td class="cal-target" data-day="fri">1800</td>
+                <td><input type="number" class="cal-input" data-day="fri" placeholder="—"></td>
+            </tr>
+            <tr data-dow="6">
+                <td>Sat</td>
+                <td><div class="cal-type-selector" data-day="sat">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('sat', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('sat', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('sat', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="sat"></select></td>
+                <td class="cal-target" data-day="sat">1300</td>
+                <td><input type="number" class="cal-input" data-day="sat" placeholder="—"></td>
+            </tr>
+            <tr data-dow="0">
+                <td>Sun</td>
+                <td><div class="cal-type-selector" data-day="sun">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('sun', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('sun', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('sun', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="sun"></select></td>
+                <td class="cal-target" data-day="sun">1300</td>
+                <td><input type="number" class="cal-input" data-day="sun" placeholder="—"></td>
+            </tr>
+            <tr data-dow="1">
+                <td>Mon</td>
+                <td><div class="cal-type-selector" data-day="mon">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('mon', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('mon', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('mon', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="mon"></select></td>
+                <td class="cal-target" data-day="mon">850</td>
+                <td><input type="number" class="cal-input" data-day="mon" placeholder="—"></td>
+            </tr>
+            <tr data-dow="2">
+                <td>Tue</td>
+                <td><div class="cal-type-selector" data-day="tue">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('tue', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('tue', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('tue', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="tue"></select></td>
+                <td class="cal-target" data-day="tue">1300</td>
+                <td><input type="number" class="cal-input" data-day="tue" placeholder="—"></td>
+            </tr>
+            <tr data-dow="3">
+                <td>Wed</td>
+                <td><div class="cal-type-selector" data-day="wed">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('wed', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('wed', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('wed', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="wed"></select></td>
+                <td class="cal-target" data-day="wed">850</td>
+                <td><input type="number" class="cal-input" data-day="wed" placeholder="—"></td>
+            </tr>
+            <tr data-dow="4">
+                <td>Thu</td>
+                <td><div class="cal-type-selector" data-day="thu">
+                    <button class="cal-type-btn" data-type="m" onclick="setCalType('thu', 'm')">M</button>
+                    <button class="cal-type-btn" data-type="n" onclick="setCalType('thu', 'n')">N</button>
+                    <button class="cal-type-btn" data-type="r" onclick="setCalType('thu', 'r')">R</button>
+                </div></td>
+                <td><select class="workout-select" data-day="thu"></select></td>
+                <td class="cal-target" data-day="thu">1300</td>
+                <td><input type="number" class="cal-input" data-day="thu" placeholder="—"></td>
+            </tr>
         </table>
         <button class="btn btn-small" onclick="resetSchedule()" style="margin-top:10px;font-size:11px;padding:8px 12px;">↺ Reset to default</button>
     </div>
@@ -476,9 +608,68 @@
     <button class="btn btn-full" onclick="saveWorkout()">SAVE WORKOUT</button>
 </div>
 
+<!-- Weekly Report Page -->
+<div class="page" id="page-report">
+    <h1>WEEKLY REPORT</h1>
+    
+    <div class="week-tracker">
+        <button class="week-btn" onclick="changeWeek(-1)">−</button>
+        <div class="week-display">
+            <div class="week-num" id="reportWeekNum">1</div>
+            <div class="week-label">Week</div>
+        </div>
+        <button class="week-btn" onclick="changeWeek(1)">+</button>
+    </div>
+    
+    <div class="card">
+        <div class="report-section">
+            <h3>📊 Weight Tracking</h3>
+            <div id="weightTrackingSection"></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="report-section">
+            <h3>🍽️ Calorie Summary</h3>
+            <div id="calorieSummarySection"></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="report-section">
+            <h3>📈 Projected Progress</h3>
+            <div id="projectedProgressSection"></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="report-section">
+            <h3>📅 Week-over-Week History</h3>
+            <div id="weekHistorySection"></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="report-section">
+            <h3>💪 Workout Log</h3>
+            <div id="reportWorkoutLog"></div>
+        </div>
+    </div>
+</div>
+
 <!-- History Page -->
 <div class="page" id="page-history">
-    <h1>WORKOUT LOG</h1>
+    <h1>HISTORY</h1>
+    
+    <div class="week-tracker">
+        <button class="week-btn" onclick="changeHistoryWeek(-1)">←</button>
+        <div class="week-display">
+            <div class="week-num" id="historyWeekNum">1</div>
+            <div class="week-label">Week</div>
+        </div>
+        <button class="week-btn" onclick="changeHistoryWeek(1)">→</button>
+    </div>
+    
     <div id="historyContent"></div>
 </div>
 
@@ -491,6 +682,7 @@
     <button class="nav-btn" onclick="showWorkout(4)"><span class="icon">4</span>Glute</button>
     <button class="nav-btn" onclick="showWorkout(5)"><span class="icon">5</span>Arms</button>
     <button class="nav-btn" onclick="showWorkout(6)"><span class="icon">6</span>Sprnt</button>
+    <button class="nav-btn" onclick="showPage('report')"><span class="icon">📊</span>Report</button>
     <button class="nav-btn" onclick="showPage('history')"><span class="icon">◷</span>Log</button>
 </nav>
 
@@ -731,15 +923,27 @@ const DEFAULT_SCHEDULE = {
     fri: '1', sat: 'rest', sun: '2', mon: '3', tue: '4', wed: '5', thu: '6'
 };
 
+// Default calorie types (independent from workout)
+const DEFAULT_CAL_TYPES = {
+    fri: 'm', sat: 'n', sun: 'n', mon: 'r', tue: 'n', wed: 'r', thu: 'n'
+};
+
+// Calorie type presets
+const CAL_TYPE_PRESETS = {
+    m: { cal: 1800, label: 'Maintenance', class: 'cal-maint' },
+    n: { cal: 1300, label: 'Normal Deficit', class: 'cal-normal' },
+    r: { cal: 850, label: 'RFL', class: 'cal-rfl' }
+};
+
 // Workout options for dropdown
 const WORKOUT_OPTIONS = [
-    { value: '1', label: 'Day 1: Back & Chest', cal: 1800, type: 'maint' },
-    { value: '2', label: 'Day 2: Legs', cal: 1300, type: 'normal' },
-    { value: '3', label: 'Day 3: Shoulders + Calves', cal: 850, type: 'rfl' },
-    { value: '4', label: 'Day 4: Glutes & Hip Flexors', cal: 1300, type: 'normal' },
-    { value: '5', label: 'Day 5: Arms', cal: 850, type: 'rfl' },
-    { value: '6', label: 'Day 6: Sprints', cal: 1300, type: 'normal' },
-    { value: 'rest', label: 'Rest', cal: 1300, type: 'normal' }
+    { value: '1', label: 'Day 1: Back & Chest' },
+    { value: '2', label: 'Day 2: Legs' },
+    { value: '3', label: 'Day 3: Shoulders + Calves' },
+    { value: '4', label: 'Day 4: Glutes & Hip Flexors' },
+    { value: '5', label: 'Day 5: Arms' },
+    { value: '6', label: 'Day 6: Sprints' },
+    { value: 'rest', label: 'Rest' }
 ];
 
 // Exercise Data - Sabrina & Mitch Final 5x4
@@ -829,14 +1033,66 @@ const WORKOUTS = {
     }
 };
 
+// ===============================
+// CALORIE TYPE MANAGEMENT
+// ===============================
+
+function getCalTypesKey() {
+    return `calTypes_week_${currentWeek}`;
+}
+
+function getCalTypes() {
+    const saved = localStorage.getItem(getCalTypesKey());
+    return saved ? JSON.parse(saved) : {...DEFAULT_CAL_TYPES};
+}
+
+function saveCalTypes(calTypes) {
+    localStorage.setItem(getCalTypesKey(), JSON.stringify(calTypes));
+}
+
+function setCalType(day, type) {
+    const calTypes = getCalTypes();
+    calTypes[day] = type;
+    saveCalTypes(calTypes);
+    updateCalTypeUI();
+}
+
+function updateCalTypeUI() {
+    const calTypes = getCalTypes();
+    
+    document.querySelectorAll('.cal-type-selector').forEach(selector => {
+        const day = selector.dataset.day;
+        const activeType = calTypes[day] || 'n';
+        
+        // Update button states
+        selector.querySelectorAll('.cal-type-btn').forEach(btn => {
+            btn.classList.remove('active-m', 'active-n', 'active-r');
+            if (btn.dataset.type === activeType) {
+                btn.classList.add(`active-${activeType}`);
+            }
+        });
+        
+        // Update target calorie display
+        const preset = CAL_TYPE_PRESETS[activeType];
+        const targetCell = document.querySelector(`.cal-target[data-day="${day}"]`);
+        if (targetCell && preset) {
+            targetCell.textContent = preset.cal;
+            targetCell.className = `cal-target ${preset.class}`;
+        }
+    });
+}
+
 // Week tracking
 function changeWeek(delta) {
     currentWeek = Math.max(1, currentWeek + delta);
     localStorage.setItem('currentWeek', currentWeek);
     document.getElementById('weekNum').textContent = currentWeek;
+    document.getElementById('reportWeekNum').textContent = currentWeek;
     updateWorkoutButtons();
     loadCalories();
     initScheduleDropdowns();
+    updateCalTypeUI();
+    renderReport();
 }
 
 function updateWorkoutButtons() {
@@ -855,10 +1111,14 @@ function showPage(page) {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     if (page === 'dashboard') {
         document.getElementById('page-dashboard').classList.add('active');
-        document.querySelector('.nav-btn').classList.add('active');
+        document.querySelectorAll('.nav-btn')[0].classList.add('active');
+    } else if (page === 'report') {
+        document.getElementById('page-report').classList.add('active');
+        document.querySelectorAll('.nav-btn')[7].classList.add('active');
+        renderReport();
     } else if (page === 'history') {
         document.getElementById('page-history').classList.add('active');
-        document.querySelectorAll('.nav-btn')[7].classList.add('active');
+        document.querySelectorAll('.nav-btn')[8].classList.add('active');
         renderHistory();
     }
 }
@@ -1100,7 +1360,6 @@ function saveSchedule() {
         schedule[sel.dataset.day] = sel.value;
     });
     localStorage.setItem(getScheduleKey(), JSON.stringify(schedule));
-    updateCalorieTargets();
 }
 
 function initScheduleDropdowns() {
@@ -1112,23 +1371,13 @@ function initScheduleDropdowns() {
         sel.value = schedule[sel.dataset.day] || 'rest';
         sel.addEventListener('change', saveSchedule);
     });
-    updateCalorieTargets();
-}
-
-function updateCalorieTargets() {
-    document.querySelectorAll('.workout-select').forEach(sel => {
-        const opt = WORKOUT_OPTIONS.find(o => o.value === sel.value);
-        const targetCell = document.querySelector(`.cal-target[data-day="${sel.dataset.day}"]`);
-        if (targetCell && opt) {
-            targetCell.textContent = opt.cal;
-            targetCell.className = `cal-target cal-${opt.type}`;
-        }
-    });
 }
 
 function resetSchedule() {
     localStorage.removeItem(getScheduleKey());
+    localStorage.removeItem(getCalTypesKey());
     initScheduleDropdowns();
+    updateCalTypeUI();
 }
 
 // Calories tracking
@@ -1320,10 +1569,10 @@ function calculateCumulativeDeficit() {
     // Get all calorie data from all weeks
     for (let week = 1; week <= currentWeek; week++) {
         const caloriesKey = `calories_week_${week}`;
-        const scheduleKey = `schedule_week_${week}`;
+        const calTypesKey = `calTypes_week_${week}`;
         
         const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
-        const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '{}');
+        const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
         
         const days = ['fri', 'sat', 'sun', 'mon', 'tue', 'wed', 'thu'];
         
@@ -1331,10 +1580,9 @@ function calculateCumulativeDeficit() {
             const actual = actualCals[day];
             if (!actual) return; // Skip days without logged calories
             
-            // Get target from schedule
-            const workoutValue = schedule[day] || 'rest';
-            const workout = WORKOUT_OPTIONS.find(opt => opt.value === workoutValue);
-            const target = workout ? workout.cal : 1300;
+            // Get target from calorie type
+            const calType = calTypes[day] || 'n';
+            const target = CAL_TYPE_PRESETS[calType].cal;
             
             totalDeficit += (target - actual);
         });
@@ -1349,10 +1597,10 @@ function getRecentWeeklyDeficit() {
     // Calculate last 4 weeks
     for (let week = Math.max(1, currentWeek - 3); week <= currentWeek; week++) {
         const caloriesKey = `calories_week_${week}`;
-        const scheduleKey = `schedule_week_${week}`;
+        const calTypesKey = `calTypes_week_${week}`;
         
         const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
-        const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '{}');
+        const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
         
         let weekDeficit = 0;
         let daysLogged = 0;
@@ -1362,9 +1610,8 @@ function getRecentWeeklyDeficit() {
             const actual = actualCals[day];
             if (!actual) return;
             
-            const workoutValue = schedule[day] || 'rest';
-            const workout = WORKOUT_OPTIONS.find(opt => opt.value === workoutValue);
-            const target = workout ? workout.cal : 1300;
+            const calType = calTypes[day] || 'n';
+            const target = CAL_TYPE_PRESETS[calType].cal;
             
             weekDeficit += (target - actual);
             daysLogged++;
@@ -1461,8 +1708,339 @@ function renderWeightPredictor() {
     `;
 }
 
+// ===============================
+// WEEKLY REPORT
+// ===============================
+
+function renderReport() {
+    renderWeightTracking();
+    renderCalorieSummary();
+    renderProjectedProgress();
+    renderWeekHistory();
+    renderReportWorkoutLog();
+}
+
+function renderWeightTracking() {
+    const container = document.getElementById('weightTrackingSection');
+    const weightLogs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+    const weekLogs = weightLogs.filter(l => l.week === currentWeek);
+    
+    if (weekLogs.length === 0) {
+        container.innerHTML = '<div class="wp-empty">No weight data for this week</div>';
+        return;
+    }
+    
+    const startWeight = weekLogs[weekLogs.length - 1]?.weight;
+    const endWeight = weekLogs[0]?.weight;
+    const actualChange = endWeight - startWeight;
+    
+    // Calculate predicted change from deficit
+    const caloriesKey = `calories_week_${currentWeek}`;
+    const calTypesKey = `calTypes_week_${currentWeek}`;
+    const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+    const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
+    
+    let weekDeficit = 0;
+    const days = ['fri', 'sat', 'sun', 'mon', 'tue', 'wed', 'thu'];
+    days.forEach(day => {
+        const actual = actualCals[day];
+        if (!actual) return;
+        const calType = calTypes[day] || 'n';
+        const target = CAL_TYPE_PRESETS[calType].cal;
+        weekDeficit += (target - actual);
+    });
+    
+    const predictedChange = -(weekDeficit / 7700);
+    const difference = actualChange - predictedChange;
+    
+    // Get cycle context
+    const cycleInfo = getCycleInfo();
+    let cycleContext = '';
+    if (cycleInfo.phase) {
+        const phaseName = cycleInfo.phase.charAt(0).toUpperCase() + cycleInfo.phase.slice(1);
+        const waterRetention = getWaterRetention(cycleInfo.phase);
+        cycleContext = `<div class="wp-stat">
+            <span class="wp-stat-label">🔴 Cycle phase:</span>
+            <span class="wp-stat-value">${phaseName} (${waterRetention > 0 ? '+' : ''}${waterRetention.toFixed(1)} kg water)</span>
+        </div>`;
+    }
+    
+    container.innerHTML = `
+        <div class="wp-stats">
+            <div class="wp-stat">
+                <span class="wp-stat-label">Start weight:</span>
+                <span class="wp-stat-value">${startWeight.toFixed(1)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">End weight:</span>
+                <span class="wp-stat-value">${endWeight.toFixed(1)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Actual change:</span>
+                <span class="wp-stat-value ${actualChange < 0 ? '' : 'accent'}">${actualChange > 0 ? '+' : ''}${actualChange.toFixed(2)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Predicted change:</span>
+                <span class="wp-stat-value">${predictedChange.toFixed(2)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Difference:</span>
+                <span class="wp-stat-value ${Math.abs(difference) < 0.5 ? '' : 'accent'}">${difference > 0 ? '+' : ''}${difference.toFixed(2)} kg</span>
+            </div>
+            ${cycleContext}
+        </div>
+    `;
+}
+
+function renderCalorieSummary() {
+    const container = document.getElementById('calorieSummarySection');
+    const caloriesKey = `calories_week_${currentWeek}`;
+    const calTypesKey = `calTypes_week_${currentWeek}`;
+    const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+    const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
+    
+    const days = [
+        {short: 'Fri', key: 'fri'},
+        {short: 'Sat', key: 'sat'},
+        {short: 'Sun', key: 'sun'},
+        {short: 'Mon', key: 'mon'},
+        {short: 'Tue', key: 'tue'},
+        {short: 'Wed', key: 'wed'},
+        {short: 'Thu', key: 'thu'}
+    ];
+    
+    let totalTarget = 0;
+    let totalActual = 0;
+    let daysLogged = 0;
+    
+    const rows = days.map(day => {
+        const calType = calTypes[day.key] || 'n';
+        const target = CAL_TYPE_PRESETS[calType].cal;
+        const actual = actualCals[day.key] || null;
+        const diff = actual ? actual - target : null;
+        
+        if (actual) {
+            totalTarget += target;
+            totalActual += actual;
+            daysLogged++;
+        }
+        
+        const typeLabel = calType === 'm' ? 'M' : calType === 'r' ? 'R' : 'N';
+        const actualDisplay = actual || '—';
+        const diffDisplay = diff !== null ? (diff > 0 ? '+' + diff : diff) : '—';
+        const diffClass = diff !== null ? (diff <= 0 ? 'cal-under' : 'cal-over') : '';
+        
+        return `<tr>
+            <td>${day.short}</td>
+            <td>${typeLabel}</td>
+            <td>${target}</td>
+            <td>${actualDisplay}</td>
+            <td class="${diffClass}">${diffDisplay}</td>
+        </tr>`;
+    }).join('');
+    
+    const totalDiff = totalActual - totalTarget;
+    const avgActual = daysLogged > 0 ? Math.round(totalActual / daysLogged) : 0;
+    
+    container.innerHTML = `
+        <table class="report-table">
+            <tr><th>Day</th><th>Type</th><th>Target</th><th>Actual</th><th>Diff</th></tr>
+            ${rows}
+            <tr class="total-row">
+                <td colspan="2">TOTAL</td>
+                <td>${totalTarget}</td>
+                <td>${totalActual}</td>
+                <td class="${totalDiff <= 0 ? 'cal-under' : 'cal-over'}">${totalDiff > 0 ? '+' : ''}${totalDiff}</td>
+            </tr>
+        </table>
+        <div class="report-summary">
+            <div class="report-stat">
+                <div class="report-stat-value ${totalDiff <= 0 ? '' : 'negative'}">${totalDiff > 0 ? '+' : ''}${totalDiff}</div>
+                <div class="report-stat-label">Weekly Surplus/Deficit</div>
+            </div>
+            <div class="report-stat">
+                <div class="report-stat-value">${avgActual}</div>
+                <div class="report-stat-label">Avg Daily Intake</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderProjectedProgress() {
+    const container = document.getElementById('projectedProgressSection');
+    
+    // Get this week's actual calories
+    const caloriesKey = `calories_week_${currentWeek}`;
+    const calTypesKey = `calTypes_week_${currentWeek}`;
+    const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+    const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
+    
+    const days = ['fri', 'sat', 'sun', 'mon', 'tue', 'wed', 'thu'];
+    let weekDeficit = 0;
+    
+    days.forEach(day => {
+        const actual = actualCals[day];
+        if (!actual) return;
+        const calType = calTypes[day] || 'n';
+        const target = CAL_TYPE_PRESETS[calType].cal;
+        weekDeficit += (target - actual);
+    });
+    
+    const expectedFatLoss = weekDeficit / 7700;
+    const cumulativeDeficit = calculateCumulativeDeficit();
+    const cumulativeFatLoss = cumulativeDeficit / 7700;
+    
+    // Get current weight
+    const weightLogs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+    const currentWeight = weightLogs[0]?.weight || 67;
+    const cycleInfo = getCycleInfo();
+    const waterRetention = cycleInfo.phase ? getWaterRetention(cycleInfo.phase) : 0;
+    const trueTrendWeight = currentWeight - waterRetention;
+    
+    // Project next week weight
+    const projectedNextWeek = trueTrendWeight - expectedFatLoss;
+    
+    // Calculate weeks to target (62-64 kg range)
+    const targetWeight = 63;
+    const avgWeeklyDeficit = getRecentWeeklyDeficit();
+    const weightToLose = trueTrendWeight - targetWeight;
+    
+    let projectedDate = 'N/A';
+    if (avgWeeklyDeficit > 0 && weightToLose > 0) {
+        const caloriesNeeded = weightToLose * 7700;
+        const weeksNeeded = caloriesNeeded / avgWeeklyDeficit;
+        const daysNeeded = Math.round(weeksNeeded * 7);
+        
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + daysNeeded);
+        projectedDate = futureDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } else if (weightToLose <= 0) {
+        projectedDate = 'Target reached! 🎉';
+    }
+    
+    container.innerHTML = `
+        <div class="wp-stats">
+            <div class="wp-stat">
+                <span class="wp-stat-label">Expected fat loss this week:</span>
+                <span class="wp-stat-value">${expectedFatLoss.toFixed(2)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Cumulative fat loss:</span>
+                <span class="wp-stat-value">${cumulativeFatLoss.toFixed(2)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Current trend weight:</span>
+                <span class="wp-stat-value">${trueTrendWeight.toFixed(1)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Projected next week:</span>
+                <span class="wp-stat-value">${projectedNextWeek.toFixed(1)} kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Target weight:</span>
+                <span class="wp-stat-value">62-64 kg</span>
+            </div>
+            <div class="wp-stat">
+                <span class="wp-stat-label">Projected target date:</span>
+                <span class="wp-stat-value">${projectedDate}</span>
+            </div>
+        </div>
+    `;
+}
+
+function renderWeekHistory() {
+    const container = document.getElementById('weekHistorySection');
+    const maxWeeks = Math.min(currentWeek, 8);
+    const startWeek = Math.max(1, currentWeek - maxWeeks + 1);
+    
+    const rows = [];
+    for (let week = currentWeek; week >= startWeek; week--) {
+        const caloriesKey = `calories_week_${week}`;
+        const calTypesKey = `calTypes_week_${week}`;
+        const actualCals = JSON.parse(localStorage.getItem(caloriesKey) || '{}');
+        const calTypes = JSON.parse(localStorage.getItem(calTypesKey) || '{}');
+        
+        const days = ['fri', 'sat', 'sun', 'mon', 'tue', 'wed', 'thu'];
+        let weekDeficit = 0;
+        let totalCals = 0;
+        let daysLogged = 0;
+        
+        days.forEach(day => {
+            const actual = actualCals[day];
+            if (!actual) return;
+            const calType = calTypes[day] || 'n';
+            const target = CAL_TYPE_PRESETS[calType].cal;
+            weekDeficit += (target - actual);
+            totalCals += actual;
+            daysLogged++;
+        });
+        
+        const avgCals = daysLogged > 0 ? Math.round(totalCals / daysLogged) : 0;
+        
+        // Get weight change
+        const weightLogs = JSON.parse(localStorage.getItem('weightLogs') || '[]');
+        const weekLogs = weightLogs.filter(l => l.week === week);
+        let weightChange = '—';
+        let predictedChange = '—';
+        
+        if (weekLogs.length >= 2) {
+            const startW = weekLogs[weekLogs.length - 1].weight;
+            const endW = weekLogs[0].weight;
+            weightChange = (endW - startW).toFixed(2);
+            predictedChange = (-(weekDeficit / 7700)).toFixed(2);
+        }
+        
+        if (daysLogged > 0 || weekLogs.length > 0) {
+            rows.push(`<tr>
+                <td>W${week}</td>
+                <td>${avgCals || '—'}</td>
+                <td>${weekDeficit > 0 ? weekDeficit : '—'}</td>
+                <td>${weightChange}</td>
+                <td>${predictedChange}</td>
+            </tr>`);
+        }
+    }
+    
+    if (rows.length === 0) {
+        container.innerHTML = '<div class="wp-empty">No history data yet</div>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <table class="week-history-table">
+            <tr><th>Week</th><th>Avg Cal</th><th>Deficit</th><th>Actual Δ</th><th>Pred Δ</th></tr>
+            ${rows.join('')}
+        </table>
+    `;
+}
+
+function renderReportWorkoutLog() {
+    const container = document.getElementById('reportWorkoutLog');
+    const logs = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
+    const weekLogs = logs.filter(l => l.week === currentWeek);
+    const names = {1:'Back & Chest',2:'Legs',3:'Shoulders + Calves',4:'Glutes & Hips',5:'Arms',6:'Sprints'};
+    
+    if (weekLogs.length === 0) {
+        container.innerHTML = '<div class="wp-empty">No workouts logged this week</div>';
+        return;
+    }
+    
+    container.innerHTML = weekLogs.map(l => `
+        <div class="history-item">
+            <div class="history-header">
+                <div class="history-date">${l.date}</div>
+                <div class="history-day">Day ${l.day}: ${names[l.day]}</div>
+            </div>
+            ${l.exercises.filter(e => e.kg || e.reps).slice(0, 5).map(e => 
+                `<div class="history-ex">${e.name}: <span>${e.kg || '—'}kg × ${e.reps || '—'}</span></div>`
+            ).join('')}
+        </div>
+    `).join('');
+}
+
 // Init
 document.getElementById('weekNum').textContent = currentWeek;
+document.getElementById('reportWeekNum').textContent = currentWeek;
 document.querySelectorAll('[data-dow]').forEach(row => {
     if (parseInt(row.dataset.dow) === new Date().getDay()) row.classList.add('today');
 });
@@ -1471,6 +2049,7 @@ renderWorkoutLog();
 updateWorkoutButtons();
 loadCalories();
 initScheduleDropdowns();
+updateCalTypeUI();
 renderCycle();
 renderWeightPredictor();
 
