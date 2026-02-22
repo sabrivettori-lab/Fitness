@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0074)file:///Users/sabrinavettori/Downloads/Telegram%20Desktop/index%20(4).html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,11 +11,11 @@
     <title>Sabrina's Fitness</title>
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="file:///Users/sabrinavettori/Downloads/Telegram%20Desktop/manifest.json">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="file:///Users/sabrinavettori/Downloads/Telegram%20Desktop/icons/favicon.svg">
-    <link rel="apple-touch-icon" href="file:///Users/sabrinavettori/Downloads/Telegram%20Desktop/icons/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     
     <style>
         :root {
@@ -155,6 +155,59 @@
         .log-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
         .log-item:last-child { border-bottom: none; }
         
+        /* Fitbit Integration Styles */
+        .fitbit-connect-btn {
+            width: 100%; padding: 16px; background: var(--primary); color: white;
+            border: none; border-radius: 10px; font-weight: 600; font-size: 14px;
+            cursor: pointer; letter-spacing: 1.5px; display: flex; align-items: center;
+            justify-content: center; gap: 8px;
+        }
+        .fitbit-connect-btn:active { opacity: 0.8; }
+        
+        .fitbit-stats {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+            margin-bottom: 12px;
+        }
+        .fitbit-stat {
+            background: var(--dark); border-radius: 8px; padding: 12px;
+            text-align: center;
+        }
+        .fitbit-stat-icon { font-size: 24px; margin-bottom: 4px; }
+        .fitbit-stat-value { 
+            color: var(--primary); font-size: 20px; font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .fitbit-stat-label { color: #888; font-size: 10px; text-transform: uppercase; }
+        
+        .fitbit-actions {
+            display: flex; gap: 8px; margin-top: 10px;
+        }
+        .fitbit-refresh-btn {
+            flex: 1; padding: 10px; background: var(--accent); color: white;
+            border: none; border-radius: 8px; font-weight: 600; font-size: 11px;
+            cursor: pointer; letter-spacing: 1px;
+        }
+        .fitbit-disconnect-btn {
+            padding: 10px 16px; background: transparent; color: #666;
+            border: 1px solid #444; border-radius: 8px; font-weight: 600;
+            font-size: 11px; cursor: pointer; letter-spacing: 1px;
+        }
+        .fitbit-refresh-btn:active, .fitbit-disconnect-btn:active { opacity: 0.7; }
+        
+        .fitbit-timestamp {
+            text-align: center; color: #666; font-size: 10px; margin-top: 8px;
+        }
+        
+        .fitbit-loading {
+            text-align: center; padding: 20px; color: #888; font-size: 13px;
+        }
+        
+        .fitbit-error {
+            background: rgba(201, 76, 123, 0.15); border: 1px solid var(--accent);
+            border-radius: 8px; padding: 12px; text-align: center; color: var(--accent);
+            font-size: 12px;
+        }
+        
         /* Workout Page */
         .workout-header { 
             display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
@@ -261,7 +314,7 @@
 <body>
 
 <!-- PWA Version Badge -->
-<div class="pwa-badge">v2.0 PWA</div>
+<div class="pwa-badge">v2.1 PWA</div>
 
 <!-- Install Banner -->
 <div class="install-banner" id="installBanner">
@@ -289,25 +342,25 @@
     <div class="card">
         <h2>THIS WEEK</h2>
         <table class="schedule-table">
-            <tbody><tr><th>Day</th><th>Workout</th><th>Target</th><th>Actual</th></tr>
-            <tr data-dow="5"><td>Fri</td><td><select class="workout-select" data-day="fri"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-maint" data-day="fri">1800</td><td><input type="number" class="cal-input" data-day="fri" placeholder="—"></td></tr>
-            <tr data-dow="6"><td>Sat</td><td><select class="workout-select" data-day="sat"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-normal" data-day="sat">1300</td><td><input type="number" class="cal-input" data-day="sat" placeholder="—"></td></tr>
-            <tr data-dow="0" class="today"><td>Sun</td><td><select class="workout-select" data-day="sun"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-normal" data-day="sun">1300</td><td><input type="number" class="cal-input" data-day="sun" placeholder="—"></td></tr>
-            <tr data-dow="1"><td>Mon</td><td><select class="workout-select" data-day="mon"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-rfl" data-day="mon">850</td><td><input type="number" class="cal-input" data-day="mon" placeholder="—"></td></tr>
-            <tr data-dow="2"><td>Tue</td><td><select class="workout-select" data-day="tue"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-normal" data-day="tue">1300</td><td><input type="number" class="cal-input" data-day="tue" placeholder="—"></td></tr>
-            <tr data-dow="3"><td>Wed</td><td><select class="workout-select" data-day="wed"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-rfl" data-day="wed">850</td><td><input type="number" class="cal-input" data-day="wed" placeholder="—"></td></tr>
-            <tr data-dow="4"><td>Thu</td><td><select class="workout-select" data-day="thu"><option value="1">Day 1: Back &amp; Chest</option><option value="2">Day 2: Legs</option><option value="3">Day 3: Shoulders + Calves</option><option value="4">Day 4: Glutes &amp; Hip Flexors</option><option value="5">Day 5: Arms</option><option value="6">Day 6: Sprints</option><option value="rest">Rest</option></select></td><td class="cal-target cal-normal" data-day="thu">1300</td><td><input type="number" class="cal-input" data-day="thu" placeholder="—"></td></tr>
-        </tbody></table>
+            <tr><th>Day</th><th>Workout</th><th>Target</th><th>Actual</th></tr>
+            <tr data-dow="5"><td>Fri</td><td><select class="workout-select" data-day="fri"></select></td><td class="cal-target" data-day="fri">1800</td><td><input type="number" class="cal-input" data-day="fri" placeholder="—"></td></tr>
+            <tr data-dow="6"><td>Sat</td><td><select class="workout-select" data-day="sat"></select></td><td class="cal-target" data-day="sat">1300</td><td><input type="number" class="cal-input" data-day="sat" placeholder="—"></td></tr>
+            <tr data-dow="0"><td>Sun</td><td><select class="workout-select" data-day="sun"></select></td><td class="cal-target" data-day="sun">1300</td><td><input type="number" class="cal-input" data-day="sun" placeholder="—"></td></tr>
+            <tr data-dow="1"><td>Mon</td><td><select class="workout-select" data-day="mon"></select></td><td class="cal-target" data-day="mon">850</td><td><input type="number" class="cal-input" data-day="mon" placeholder="—"></td></tr>
+            <tr data-dow="2"><td>Tue</td><td><select class="workout-select" data-day="tue"></select></td><td class="cal-target" data-day="tue">1300</td><td><input type="number" class="cal-input" data-day="tue" placeholder="—"></td></tr>
+            <tr data-dow="3"><td>Wed</td><td><select class="workout-select" data-day="wed"></select></td><td class="cal-target" data-day="wed">850</td><td><input type="number" class="cal-input" data-day="wed" placeholder="—"></td></tr>
+            <tr data-dow="4"><td>Thu</td><td><select class="workout-select" data-day="thu"></select></td><td class="cal-target" data-day="thu">1300</td><td><input type="number" class="cal-input" data-day="thu" placeholder="—"></td></tr>
+        </table>
         <button class="btn btn-small" onclick="resetSchedule()" style="margin-top:10px;font-size:11px;padding:8px 12px;">↺ Reset to default</button>
     </div>
     
     <div class="card">
         <h2>WORKOUTS</h2>
         <div class="workout-grid" id="workoutGrid">
-            <div class="workout-btn" data-day="1" onclick="showWorkout(1)"><div class="day">1</div><div class="name">Back &amp; Chest</div></div>
+            <div class="workout-btn" data-day="1" onclick="showWorkout(1)"><div class="day">1</div><div class="name">Back & Chest</div></div>
             <div class="workout-btn" data-day="2" onclick="showWorkout(2)"><div class="day">2</div><div class="name">Legs</div></div>
             <div class="workout-btn" data-day="3" onclick="showWorkout(3)"><div class="day">3</div><div class="name">Shoulders + Calves</div></div>
-            <div class="workout-btn" data-day="4" onclick="showWorkout(4)"><div class="day">4</div><div class="name">Glutes &amp; Hips</div></div>
+            <div class="workout-btn" data-day="4" onclick="showWorkout(4)"><div class="day">4</div><div class="name">Glutes & Hips</div></div>
             <div class="workout-btn" data-day="5" onclick="showWorkout(5)"><div class="day">5</div><div class="name">Arms</div></div>
             <div class="workout-btn" data-day="6" onclick="showWorkout(6)"><div class="day">6</div><div class="name">Sprints</div></div>
         </div>
@@ -316,20 +369,20 @@
     <div class="card">
         <h2>WEIGHT</h2>
         <div class="input-row">
-            <input type="number" id="weightInput" placeholder="Today&#39;s weight (kg)" step="0.1">
+            <input type="number" id="weightInput" placeholder="Today's weight (kg)" step="0.1">
             <button onclick="logWeight()">Log</button>
         </div>
-        <div class="log-list" id="weightLog"><div style="color:#555;text-align:center;padding:10px">No entries yet</div></div>
+        <div class="log-list" id="weightLog"></div>
     </div>
     
     <div class="card">
         <h2>RECENT</h2>
-        <div class="log-list" id="workoutLog"><div style="color:#555;text-align:center;padding:10px">No workouts yet</div></div>
+        <div class="log-list" id="workoutLog"></div>
     </div>
     
     <div class="card">
-        <h2>INTEGRATIONS</h2>
-        <div class="placeholder">Coming soon</div>
+        <h2>FITBIT</h2>
+        <div id="fitbitContainer"></div>
     </div>
 </div>
 
@@ -338,7 +391,7 @@
     <div class="workout-header">
         <button class="back-btn" onclick="showDashboard()">←</button>
         <div class="workout-title">
-            <h1 id="workout-name">Day 1: Back &amp; Chest</h1>
+            <h1 id="workout-name">Day 1: Back & Chest</h1>
             <div class="cal-badge" id="workout-cal"></div>
         </div>
     </div>
@@ -354,14 +407,14 @@
 
 <!-- Bottom Navigation -->
 <nav class="nav">
-    <button class="nav-btn active" onclick="showPage(&#39;dashboard&#39;)"><span class="icon">⌂</span>Home</button>
+    <button class="nav-btn active" onclick="showPage('dashboard')"><span class="icon">⌂</span>Home</button>
     <button class="nav-btn" onclick="showWorkout(1)"><span class="icon">1</span>Back</button>
     <button class="nav-btn" onclick="showWorkout(2)"><span class="icon">2</span>Legs</button>
     <button class="nav-btn" onclick="showWorkout(3)"><span class="icon">3</span>Shld</button>
     <button class="nav-btn" onclick="showWorkout(4)"><span class="icon">4</span>Glute</button>
     <button class="nav-btn" onclick="showWorkout(5)"><span class="icon">5</span>Arms</button>
     <button class="nav-btn" onclick="showWorkout(6)"><span class="icon">6</span>Sprnt</button>
-    <button class="nav-btn" onclick="showPage(&#39;history&#39;)"><span class="icon">◷</span>Log</button>
+    <button class="nav-btn" onclick="showPage('history')"><span class="icon">◷</span>Log</button>
 </nav>
 
 <script>
@@ -394,6 +447,202 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 document.getElementById('installClose').addEventListener('click', () => {
     document.getElementById('installBanner').classList.remove('show');
 });
+
+// ===============================
+// FITBIT INTEGRATION
+// ===============================
+
+const FITBIT_CONFIG = {
+    clientId: '23V3CN',
+    redirectUri: 'https://sabrivettori-lab.github.io/Fitness/',
+    authUri: 'https://www.fitbit.com/oauth2/authorize',
+    scope: 'activity heartrate sleep weight profile',
+    expiresIn: '31536000' // 1 year
+};
+
+// Check for OAuth redirect on page load
+function checkFitbitAuth() {
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+        const params = new URLSearchParams(hash.substring(1));
+        const token = params.get('access_token');
+        if (token) {
+            localStorage.setItem('fitbit_token', token);
+            // Clean URL
+            window.history.replaceState(null, null, window.location.pathname);
+            // Fetch data
+            fetchFitbitData();
+        }
+    } else if (localStorage.getItem('fitbit_token')) {
+        // Token exists, fetch data
+        fetchFitbitData();
+    } else {
+        // No token, show connect button
+        renderFitbitDisconnected();
+    }
+}
+
+// Initiate Fitbit OAuth
+function connectFitbit() {
+    const authUrl = `${FITBIT_CONFIG.authUri}?response_type=token&client_id=${FITBIT_CONFIG.clientId}&redirect_uri=${encodeURIComponent(FITBIT_CONFIG.redirectUri)}&scope=${encodeURIComponent(FITBIT_CONFIG.scope)}&expires_in=${FITBIT_CONFIG.expiresIn}`;
+    window.location.href = authUrl;
+}
+
+// Disconnect Fitbit
+function disconnectFitbit() {
+    if (confirm('Disconnect Fitbit? You can reconnect anytime.')) {
+        localStorage.removeItem('fitbit_token');
+        localStorage.removeItem('fitbit_data');
+        localStorage.removeItem('fitbit_last_refresh');
+        renderFitbitDisconnected();
+    }
+}
+
+// Fetch all Fitbit data
+async function fetchFitbitData() {
+    const token = localStorage.getItem('fitbit_token');
+    if (!token) {
+        renderFitbitDisconnected();
+        return;
+    }
+    
+    renderFitbitLoading();
+    
+    try {
+        const [activities, heartRate, sleep] = await Promise.all([
+            fetchFitbitAPI('https://api.fitbit.com/1/user/-/activities/date/today.json', token),
+            fetchFitbitAPI('https://api.fitbit.com/1/user/-/activities/heart/date/today/1d.json', token),
+            fetchFitbitAPI('https://api.fitbit.com/1/user/-/sleep/date/today.json', token)
+        ]);
+        
+        const data = {
+            steps: activities?.summary?.steps || 0,
+            calories: activities?.summary?.caloriesOut || 0,
+            activeMinutes: activities?.summary?.veryActiveMinutes + activities?.summary?.fairlyActiveMinutes || 0,
+            heartRate: heartRate?.['activities-heart']?.[0]?.value?.restingHeartRate || null,
+            sleep: sleep?.summary?.totalMinutesAsleep || 0
+        };
+        
+        localStorage.setItem('fitbit_data', JSON.stringify(data));
+        localStorage.setItem('fitbit_last_refresh', new Date().toISOString());
+        
+        renderFitbitConnected(data);
+    } catch (error) {
+        console.error('Fitbit fetch error:', error);
+        handleFitbitError(error);
+    }
+}
+
+// Generic Fitbit API fetch
+async function fetchFitbitAPI(url, token) {
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    
+    if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Token expired');
+        }
+        throw new Error(`API Error: ${response.status}`);
+    }
+    
+    return await response.json();
+}
+
+// Handle Fitbit errors
+function handleFitbitError(error) {
+    const container = document.getElementById('fitbitContainer');
+    
+    if (error.message === 'Token expired') {
+        localStorage.removeItem('fitbit_token');
+        container.innerHTML = `
+            <div class="fitbit-error">
+                Your Fitbit session has expired. Please reconnect.
+            </div>
+            <button class="fitbit-connect-btn" onclick="connectFitbit()">
+                <span>🔗</span> Reconnect Fitbit
+            </button>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="fitbit-error">
+                Unable to fetch Fitbit data. Please try again.
+            </div>
+            <div class="fitbit-actions">
+                <button class="fitbit-refresh-btn" onclick="fetchFitbitData()">↺ Retry</button>
+                <button class="fitbit-disconnect-btn" onclick="disconnectFitbit()">Disconnect</button>
+            </div>
+        `;
+    }
+}
+
+// Render disconnected state
+function renderFitbitDisconnected() {
+    const container = document.getElementById('fitbitContainer');
+    container.innerHTML = `
+        <button class="fitbit-connect-btn" onclick="connectFitbit()">
+            <span>🔗</span> Connect Fitbit
+        </button>
+    `;
+}
+
+// Render loading state
+function renderFitbitLoading() {
+    const container = document.getElementById('fitbitContainer');
+    container.innerHTML = `<div class="fitbit-loading">Loading Fitbit data...</div>`;
+}
+
+// Render connected state with data
+function renderFitbitConnected(data) {
+    const lastRefresh = localStorage.getItem('fitbit_last_refresh');
+    const refreshTime = lastRefresh ? new Date(lastRefresh).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : '';
+    
+    const sleepHours = Math.floor(data.sleep / 60);
+    const sleepMins = data.sleep % 60;
+    const sleepDisplay = data.sleep > 0 ? `${sleepHours}h ${sleepMins}m` : '—';
+    
+    const container = document.getElementById('fitbitContainer');
+    container.innerHTML = `
+        <div class="fitbit-stats">
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">👣</div>
+                <div class="fitbit-stat-value">${(data.steps || 0).toLocaleString()}</div>
+                <div class="fitbit-stat-label">Steps</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">🔥</div>
+                <div class="fitbit-stat-value">${(data.calories || 0).toLocaleString()}</div>
+                <div class="fitbit-stat-label">Calories</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">❤️</div>
+                <div class="fitbit-stat-value">${data.heartRate || '—'}</div>
+                <div class="fitbit-stat-label">Resting HR</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">😴</div>
+                <div class="fitbit-stat-value">${sleepDisplay}</div>
+                <div class="fitbit-stat-label">Sleep</div>
+            </div>
+            <div class="fitbit-stat">
+                <div class="fitbit-stat-icon">🏃‍♀️</div>
+                <div class="fitbit-stat-value">${data.activeMinutes || 0}</div>
+                <div class="fitbit-stat-label">Active Min</div>
+            </div>
+        </div>
+        <div class="fitbit-actions">
+            <button class="fitbit-refresh-btn" onclick="fetchFitbitData()">↺ Refresh</button>
+            <button class="fitbit-disconnect-btn" onclick="disconnectFitbit()">Disconnect</button>
+        </div>
+        ${refreshTime ? `<div class="fitbit-timestamp">Last updated: ${refreshTime}</div>` : ''}
+    `;
+}
+
+// ===============================
+// END FITBIT INTEGRATION
+// ===============================
 
 // State
 let currentDay = 1;
@@ -836,7 +1085,9 @@ renderWorkoutLog();
 updateWorkoutButtons();
 loadCalories();
 initScheduleDropdowns();
+
+// Initialize Fitbit on page load
+checkFitbitAuth();
 </script>
-
-
-</body></html>
+</body>
+</html>
