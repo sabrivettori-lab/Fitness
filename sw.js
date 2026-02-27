@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sabrina-fitness-v2.6';
+const CACHE_NAME = 'sabrina-fitness-v2.7';
 const urlsToCache = [
   './',
   './index.html',
@@ -19,18 +19,36 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Cache-first strategy: check cache, fall back to network
+// Network-first for HTML, cache-first for assets
+// This ensures updates always come through while keeping offline support
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // Network-first for HTML pages (so updates always show)
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Update cache with fresh version
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => {
+          // Offline fallback — serve from cache
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+  
+  // Cache-first for everything else (icons, images, etc.)
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
+        if (response) return response;
         return fetch(event.request);
-      }
-    )
+      })
   );
 });
 
