@@ -270,7 +270,9 @@
         .ex-info { flex: 1; min-width: 0; }
         .ex-name { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
         .ex-details { color: #888; font-size: 11px; margin-bottom: 5px; }
-        .ex-prev { color: var(--accent); font-size: 10px; margin-bottom: 5px; font-style: italic; }
+        .ex-prev { color: var(--accent); font-size: 10px; margin-bottom: 3px; font-style: italic; }
+        .ex-pr { color: #FFD700; }
+        .pr-date { color: #888; font-size: 9px; }
         .ex-inputs { display: flex; gap: 4px; align-items: center; }
         .ex-inputs input { 
             width: 55px; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
@@ -1472,18 +1474,46 @@ function renderSuperset(section, exercises, prevData) {
 
 function getPreviousWorkoutData(day) {
     const logs = JSON.parse(localStorage.getItem('workoutLogs') || '[]');
+    // Find the most recent entry for this day (any week)
     const prev = logs.find(l => l.day === day);
     if (!prev) return {};
     const data = {};
-    prev.exercises.forEach(e => { data[e.name] = e; });
+    prev.exercises.forEach(e => { data[e.name] = {...e, _source: 'last'}; });
+    
+    // Also find personal records (highest weight) across ALL sessions for this day
+    const allForDay = logs.filter(l => l.day === day);
+    allForDay.forEach(log => {
+        (log.exercises || []).forEach(e => {
+            const kg = parseFloat(e.kg) || 0;
+            if (kg > 0) {
+                if (!data[e.name]) data[e.name] = {name: e.name, kg: '', reps: '', _source: 'pr'};
+                const prevKg = parseFloat(data[e.name].pr_kg) || 0;
+                if (kg > prevKg) {
+                    data[e.name].pr_kg = e.kg;
+                    data[e.name].pr_reps = e.reps;
+                    data[e.name].pr_date = log.date;
+                    data[e.name].pr_week = log.week;
+                }
+            }
+        });
+    });
     return data;
 }
 
 function renderExercise(e, id, prevData = {}) {
     const prev = prevData[e.name];
-    const prevHtml = prev && (prev.kg || prev.reps) 
-        ? `<div class="ex-prev">Last: ${prev.kg || '—'}kg × ${prev.reps || '—'} reps</div>` 
-        : '';
+    let prevHtml = '';
+    if (prev && (prev.kg || prev.reps)) {
+        prevHtml += `<div class="ex-prev">📋 Last: ${prev.kg || '—'}kg × ${prev.reps || '—'}</div>`;
+    }
+    if (prev && prev.pr_kg && parseFloat(prev.pr_kg) > 0) {
+        const isSame = prev.pr_kg === prev.kg;
+        if (!isSame) {
+            prevHtml += `<div class="ex-prev ex-pr">🏆 PR: ${prev.pr_kg}kg × ${prev.pr_reps || '—'} <span class="pr-date">(W${prev.pr_week || '?'})</span></div>`;
+        } else {
+            prevHtml += `<div class="ex-prev ex-pr">🏆 That's your PR!</div>`;
+        }
+    }
     
     const timerHtml = e.timed 
         ? `<button class="timer-btn" onclick="toggleTimer('${id}', ${e.timed}, this)" data-time="${e.timed}">${e.timed}s</button>`
@@ -1559,7 +1589,7 @@ function saveWorkout() {
         week: currentWeek,
         exercises
     });
-    localStorage.setItem('workoutLogs', JSON.stringify(filtered.slice(0,100)));
+    localStorage.setItem('workoutLogs', JSON.stringify(filtered.slice(0,500)));
     alert('Workout saved!');
     renderWorkoutLog();
     updateWorkoutButtons();
